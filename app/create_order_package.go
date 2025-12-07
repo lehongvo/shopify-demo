@@ -181,6 +181,12 @@ type GraphQLError struct {
 	} `json:"extensions,omitempty"`
 }
 
+// CallAdminGraphQL is a helper function to call Shopify Admin GraphQL API
+// Exported for use in other packages
+func CallAdminGraphQL(query string, variables map[string]interface{}) (map[string]interface{}, error) {
+	return callAdminGraphQL(query, variables)
+}
+
 // callAdminGraphQL is a helper function to call Shopify Admin GraphQL API
 func callAdminGraphQL(query string, variables map[string]interface{}) (map[string]interface{}, error) {
 	shopDomain := os.Getenv("SHOPIFY_SHOP_DOMAIN")
@@ -409,7 +415,40 @@ func getOrderFromDraft(draftID string) (string, string, error) {
 
 // GetFulfillmentOrders queries fulfillment orders for a given order ID
 // Note: FulfillmentOrders are automatically created when draftOrderComplete is called
+// This function will retry up to maxRetries times with increasing delays
 func GetFulfillmentOrders(orderID string) ([]FulfillmentOrderInfo, error) {
+	return GetFulfillmentOrdersWithRetry(orderID, 5, 3*time.Second)
+}
+
+// GetFulfillmentOrdersWithRetry queries fulfillment orders with retry logic
+// maxRetries: maximum number of retry attempts
+// initialDelay: initial delay between retries (will increase exponentially)
+func GetFulfillmentOrdersWithRetry(orderID string, maxRetries int, initialDelay time.Duration) ([]FulfillmentOrderInfo, error) {
+	var lastErr error
+	delay := initialDelay
+
+	for i := 0; i < maxRetries; i++ {
+		fulfillmentOrders, err := getFulfillmentOrdersOnce(orderID)
+		if err == nil {
+			// If we got results (even if empty), return them
+			// Empty might mean routing not complete, but no error
+			return fulfillmentOrders, nil
+		}
+
+		lastErr = err
+
+		// If not the last retry, wait before retrying
+		if i < maxRetries-1 {
+			time.Sleep(delay)
+			delay = time.Duration(float64(delay) * 1.5) // Exponential backoff
+		}
+	}
+
+	return nil, fmt.Errorf("failed after %d retries: %w", maxRetries, lastErr)
+}
+
+// getFulfillmentOrdersOnce performs a single query for fulfillment orders
+func getFulfillmentOrdersOnce(orderID string) ([]FulfillmentOrderInfo, error) {
 	const query = `
 		query GetFulfillmentOrders($id: ID!) {
 			order(id: $id) {
@@ -422,15 +461,19 @@ func GetFulfillmentOrders(orderID string) ([]FulfillmentOrderInfo, error) {
 							status
 							requestStatus
 							assignedLocation {
-								id
+								location {
+									id
+								}
 							}
 							lineItems(first: 50) {
 								edges {
 									node {
 										id
-										quantity
+										remainingQuantity
+										totalQuantity
 										lineItem {
 											id
+											title
 										}
 									}
 								}
@@ -462,6 +505,8 @@ func GetFulfillmentOrders(orderID string) ([]FulfillmentOrderInfo, error) {
 
 	fulfillmentOrdersData, ok := order["fulfillmentOrders"].(map[string]interface{})
 	if !ok {
+		// Debug: Check if order exists but fulfillmentOrders field is missing
+		// This might indicate access scope issues
 		return []FulfillmentOrderInfo{}, nil
 	}
 
@@ -490,7 +535,9 @@ func GetFulfillmentOrders(orderID string) ([]FulfillmentOrderInfo, error) {
 
 		// Get assigned location
 		if assignedLocation, ok := node["assignedLocation"].(map[string]interface{}); ok {
-			fo.AssignedLocationID = getString(assignedLocation, "id")
+			if location, ok := assignedLocation["location"].(map[string]interface{}); ok {
+				fo.AssignedLocationID = getString(location, "id")
+			}
 		}
 
 		// Get line items
@@ -501,7 +548,11 @@ func GetFulfillmentOrders(orderID string) ([]FulfillmentOrderInfo, error) {
 						if liNode, ok := liEdgeMap["node"].(map[string]interface{}); ok {
 							lineItem := FulfillmentOrderLineItem{
 								ID:       getString(liNode, "id"),
-								Quantity: getInt(liNode, "quantity"),
+								Quantity: getInt(liNode, "remainingQuantity"), // Use remainingQuantity instead of quantity
+							}
+							// Fallback to totalQuantity if remainingQuantity is 0
+							if lineItem.Quantity == 0 {
+								lineItem.Quantity = getInt(liNode, "totalQuantity")
 							}
 							if lineItemObj, ok := liNode["lineItem"].(map[string]interface{}); ok {
 								lineItem.LineItemID = getString(lineItemObj, "id")
