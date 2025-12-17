@@ -20,7 +20,7 @@ type InputData struct {
 type DiscountApplicationData struct {
 	Title     string `json:"title"`
 	Value     string `json:"value"`
-	ValueType string `json:"valueType"` // "percentage" or "fixed_amount"
+	ValueType string `json:"valueType"`
 	Amount    string `json:"amount"`
 }
 
@@ -97,189 +97,54 @@ func main() {
 		log.Fatal("SHOPIFY_SHOP_DOMAIN and SHOPIFY_API_SECRET must be set in environment variables")
 	}
 
-	// Đọc input.json
 	inputPath := "cmd/create_order/input.json"
 	if len(os.Args) > 1 {
 		inputPath = os.Args[1]
 	}
 
-	fmt.Println("Loading input from:", inputPath)
 	inputData, err := loadInputData(inputPath)
 	if err != nil {
 		log.Fatalf("Failed to load input data: %v", err)
 	}
 
-	fmt.Println("Creating order from input data...")
-	fmt.Println("Shop Domain:", shopDomain)
-	if inputData.Order.TotalTax != "" && inputData.Order.TotalTax != "0.00" {
-		fmt.Printf("Total Tax from input: %s\n", inputData.Order.TotalTax)
-	}
-	fmt.Println("---")
+	// Convert input.json data to OrderInput for CreateOrderGraphQL
+	orderInput := buildOrderInputForGraphQL(inputData)
 
-	// Map data từ input.json vào DraftOrderInput
-	draftInput, err := buildDraftOrderFromInput(inputData)
-	if err != nil {
-		log.Fatalf("Failed to build draft order from input: %v", err)
-	}
-
-	// Check if we have tax lines from input.json
-	hasTax := len(inputData.Order.TaxLines) > 0
-	hasDiscount := false
-	for _, item := range inputData.Order.Items {
-		if len(item.DiscountApplications) > 0 || item.TotalDiscount != "" {
-			hasDiscount = true
-			break
-		}
-	}
-	if inputData.Order.TotalDiscounts != "" && inputData.Order.TotalDiscounts != "0.00" {
-		hasDiscount = true
-	}
-	
-	if hasTax && hasDiscount {
-		// Nếu có cả tax và discount, dùng GraphQL orderCreate (theo khuyến nghị của Shopify)
-		// orderCreate hỗ trợ custom tax lines và discount
-		fmt.Println("Tax lines and discounts found - using GraphQL orderCreate mutation")
-		fmt.Printf("Tax lines: %d tax line(s)\n", len(inputData.Order.TaxLines))
-		fmt.Println("Note: Using GraphQL orderCreate as recommended by Shopify support")
-		fmt.Println("  - Custom tax lines: supported")
-		fmt.Println("  - Order-level discount: via discountCode")
-		fmt.Println("  - Line-item discount: via priceSet (calculated price) + properties (note)")
-		
-		// Convert input.json data to OrderInput for CreateOrderGraphQL
-		orderInput := buildOrderInputForGraphQL(inputData)
-		
-		// Create order using GraphQL orderCreate
-		response, err := app.CreateOrderGraphQL(orderInput)
-		if err != nil {
-			log.Fatalf("Failed to create order: %v", err)
-		}
-		
-		// Print order details
-		order := response.Data.OrderCreate.Order
-		fmt.Println("\n✓ Order created successfully with custom tax and discount!")
-		fmt.Println("---")
-		fmt.Printf("Order ID: %s\n", order.ID)
-		fmt.Printf("Order Name: %s\n", order.Name)
-		fmt.Printf("Order Number: %d\n", order.OrderNumber)
-		fmt.Printf("Email: %s\n", order.Email)
-		fmt.Printf("Total Price: %s %s\n", 
-			order.TotalPriceSet.ShopMoney.Amount,
-			order.TotalPriceSet.ShopMoney.CurrencyCode)
-		if order.TotalTaxSet.ShopMoney.Amount != "" {
-			fmt.Printf("Total Tax: %s %s\n",
-				order.TotalTaxSet.ShopMoney.Amount,
-				order.TotalTaxSet.ShopMoney.CurrencyCode)
-		}
-		if len(order.TaxLines) > 0 {
-			fmt.Println("\nTax Lines:")
-			for i, tl := range order.TaxLines {
-				rateStr := ""
-				if rateFloat, ok := tl.Rate.(float64); ok {
-					rateStr = fmt.Sprintf("%.3f", rateFloat)
-				} else if rateStrVal, ok := tl.Rate.(string); ok {
-					rateStr = rateStrVal
-				} else {
-					rateStr = fmt.Sprintf("%v", tl.Rate)
-				}
-				fmt.Printf("  %d. %s (rate: %s, amount: %s)\n", 
-					i+1, tl.Title, rateStr, tl.PriceSet.ShopMoney.Amount)
-			}
-		}
-		fmt.Println("\n📝 Note:")
-		fmt.Println("  - Custom tax lines should be applied")
-		fmt.Println("  - Discounts should be visible (via priceSet for line items)")
-		fmt.Println("  - Check Shopify admin to verify tax and discount display")
-		return
-	} else if hasTax {
-		// Nếu chỉ có tax, dùng REST API /orders.json (CreateOrderWithTax)
-		// Vì draft order flow KHÔNG hỗ trợ custom tax_lines
-		fmt.Println("Tax lines found in input.json - using REST API /orders.json to create order with custom tax")
-		fmt.Printf("Tax lines: %d tax line(s)\n", len(inputData.Order.TaxLines))
-		fmt.Println("Note: Discount will not be displayed (REST API doesn't support discount_allocations)")
-		
-		// Convert input.json data to OrderInput for CreateOrderWithTax
-		orderInput := buildOrderInputFromInput(inputData)
-		
-		// Create order with tax using REST API
-		response, err := app.CreateOrderWithTax(orderInput)
-		if err != nil {
-			log.Fatalf("Failed to create order with tax: %v", err)
-		}
-		
-		// Print order details
-		order := response.Data.OrderCreate.Order
-		fmt.Println("✓ Order created successfully with custom tax!")
-		fmt.Println("---")
-		fmt.Printf("Order ID: %s\n", order.ID)
-		fmt.Printf("Order Name: %s\n", order.Name)
-		fmt.Printf("Order Number: %d\n", order.OrderNumber)
-		fmt.Printf("Email: %s\n", order.Email)
-		fmt.Printf("Total Price: %s %s\n", 
-			order.TotalPriceSet.ShopMoney.Amount,
-			order.TotalPriceSet.ShopMoney.CurrencyCode)
-		fmt.Printf("Total Tax: %s %s\n",
-			order.TotalTaxSet.ShopMoney.Amount,
-			order.TotalTaxSet.ShopMoney.CurrencyCode)
-		
-		// Print tax lines
-		if len(order.TaxLines) > 0 {
-			fmt.Println("\nTax Lines:")
-			for i, tl := range order.TaxLines {
-				rateStr := ""
-				if rateFloat, ok := tl.Rate.(float64); ok {
-					rateStr = fmt.Sprintf("%.3f", rateFloat)
-				} else if rateStrVal, ok := tl.Rate.(string); ok {
-					rateStr = rateStrVal
-				} else {
-					rateStr = fmt.Sprintf("%v", tl.Rate)
-				}
-				fmt.Printf("  %d. %s: Rate %s, Amount %s %s\n",
-					i+1, tl.Title, rateStr,
-					tl.PriceSet.ShopMoney.Amount,
-					tl.PriceSet.ShopMoney.CurrencyCode)
-			}
-		}
-		
-		fmt.Printf("Created At: %s\n", order.CreatedAt)
-		return
-	}
-	
-	// Nếu không có tax lines, dùng draft order flow (có discount tốt)
-	fmt.Println("No tax lines - using CreateDraftOrder and draftOrderComplete flow...")
-	orderInfo, err := app.CreateOrderFromDraft(draftInput, false)
+	// Create order using GraphQL orderCreate
+	response, err := app.CreateOrderGraphQL(orderInput)
 	if err != nil {
 		log.Fatalf("Failed to create order: %v", err)
 	}
 
-	// In thông tin order
+	// Print order details
+	order := response.Data.OrderCreate.Order
 	fmt.Println("✓ Order created successfully!")
-	fmt.Println("---")
-	fmt.Printf("Order ID: %s\n", orderInfo.OrderID)
-	fmt.Printf("Order Name: %s\n", orderInfo.OrderName)
-	fmt.Printf("Draft ID: %s\n", orderInfo.DraftID)
-	fmt.Printf("Draft Name: %s\n", orderInfo.DraftName)
-
-	// Hiển thị FulfillmentOrders (tự động tạo bởi Shopify)
-	fmt.Println("\n--- Fulfillment Orders (Auto-created by Shopify) ---")
-	if len(orderInfo.FulfillmentOrders) > 0 {
-		for i, fo := range orderInfo.FulfillmentOrders {
-			fmt.Printf("\nFulfillmentOrder #%d:\n", i+1)
-			fmt.Printf("  ID: %s\n", fo.ID)
-			fmt.Printf("  Status: %s\n", fo.Status)
-			fmt.Printf("  Request Status: %s\n", fo.RequestStatus)
-			fmt.Printf("  Assigned Location ID: %s\n", fo.AssignedLocationID)
-			fmt.Printf("  Line Items: %d\n", len(fo.LineItems))
-			for j, li := range fo.LineItems {
-				fmt.Printf("    [%d] LineItem ID: %s, Quantity: %d\n", j+1, li.LineItemID, li.Quantity)
-			}
-		}
-	} else {
-		fmt.Println("No FulfillmentOrders found (may need to wait a moment for Shopify to create them)")
+	fmt.Printf("Order ID: %s\n", order.ID)
+	fmt.Printf("Order Name: %s\n", order.Name)
+	fmt.Printf("Order Number: %d\n", order.OrderNumber)
+	fmt.Printf("Email: %s\n", order.Email)
+	fmt.Printf("Total Price: %s %s\n",
+		order.TotalPriceSet.ShopMoney.Amount,
+		order.TotalPriceSet.ShopMoney.CurrencyCode)
+	if order.TotalTaxSet.ShopMoney.Amount != "" {
+		fmt.Printf("Total Tax: %s %s\n",
+			order.TotalTaxSet.ShopMoney.Amount,
+			order.TotalTaxSet.ShopMoney.CurrencyCode)
 	}
-
-	fmt.Println("\n---")
-	fmt.Println("Note: FulfillmentOrders are automatically created by Shopify when draftOrderComplete is called.")
-	fmt.Println("To fulfill the order, use app.CreateFulfillment() function.")
+	if len(order.TaxLines) > 0 {
+		for i, tl := range order.TaxLines {
+			rateStr := ""
+			if rateFloat, ok := tl.Rate.(float64); ok {
+				rateStr = fmt.Sprintf("%.3f", rateFloat)
+			} else if rateStrVal, ok := tl.Rate.(string); ok {
+				rateStr = rateStrVal
+			} else {
+				rateStr = fmt.Sprintf("%v", tl.Rate)
+			}
+			fmt.Printf("Tax Line %d: %s (rate: %s, amount: %s)\n",
+				i+1, tl.Title, rateStr, tl.PriceSet.ShopMoney.Amount)
+		}
+	}
 }
 
 func loadInputData(path string) (*InputData, error) {
@@ -294,26 +159,6 @@ func loadInputData(path string) (*InputData, error) {
 	}
 
 	return &data, nil
-}
-
-func convertTaxLines(taxLines []TaxLineData) []app.TaxLineInput {
-	result := make([]app.TaxLineInput, len(taxLines))
-	for i, tl := range taxLines {
-		rate, _ := strconv.ParseFloat(tl.Rate, 64)
-		
-		result[i] = app.TaxLineInput{
-			Title: tl.Title,
-			Rate:  rate,
-			PriceSet: &app.MoneyBagInput{
-				ShopMoney: &app.MoneyInput{
-					Amount:       tl.Price,
-					CurrencyCode: "USD",
-				},
-			},
-			Source: tl.Code,
-		}
-	}
-	return result
 }
 
 func toVariantGID(id string) string {
@@ -459,8 +304,8 @@ func buildDraftOrderFromInput(inputData *InputData) (app.DraftOrderInput, error)
 						Value:       percentage,
 						Title:       "Item Discount",
 						Description: fmt.Sprintf("Discount: %s", item.TotalDiscount),
-					}
-				} else {
+		}
+	} else {
 					lineItem.AppliedDiscount = &app.AppliedDiscountInput{
 						ValueType:   "FIXED_AMOUNT",
 						Value:       totalDiscount,
@@ -647,12 +492,11 @@ func buildOrderInputForGraphQL(inputData *InputData) app.OrderInput {
 		}
 
 		// Calculate discounted price if discount exists
-		// Apply ALL discounts from original price (not sequential)
+		// Apply discounts sequentially: each discount uses the already-discounted price
 		discountedPrice := originalPrice
 		var discountNotes []string
 		
 		if len(item.DiscountApplications) > 0 {
-			// Apply discounts sequentially (each discount applies to the already-discounted price)
 			currentPrice := originalPrice
 			for _, discount := range item.DiscountApplications {
 				// Skip discount if title contains "Original Price" or HTML tags (these are metadata, not real discounts)
@@ -693,7 +537,7 @@ func buildOrderInputForGraphQL(inputData *InputData) app.OrderInput {
 			originalPriceStr := fmt.Sprintf("$%.2f", originalPrice)
 			originalPriceValue = applyUnicodeStrikethrough(originalPriceStr)
 
-			// Prefer newline separated discounts for readability in Admin UI
+			// Format: each discount on its own line for easier reading in Shopify Admin UI
 			lineItemDiscountValue = strings.Join(discountNotes, "\n")
 		}
 
@@ -802,12 +646,7 @@ func buildOrderInputForGraphQL(inputData *InputData) app.OrderInput {
 	return orderInput
 }
 
-// applyUnicodeStrikethrough applies Unicode strikethrough combining characters to text
-// This creates a visual strikethrough effect that works in most text renderers
 func applyUnicodeStrikethrough(text string) string {
-	// Revert to the original, most compatible strikethrough:
-	// U+0336 = COMBINING LONG STROKE OVERLAY
-	// Using extra combining chars (0338/0335) can render as artifacts in Shopify Admin UI.
 	var result strings.Builder
 	for _, r := range text {
 		result.WriteRune(r)
