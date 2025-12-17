@@ -666,10 +666,12 @@ func buildOrderInputForGraphQL(inputData *InputData) app.OrderInput {
 					value, _ := strconv.ParseFloat(discount.Value, 64)
 					// Calculate discount from current price (sequential)
 					discountAmount = currentPrice * value / 100
-					discountNotes = append(discountNotes, fmt.Sprintf("%s%% off (%s)", discount.Value, discount.Title))
+					// Professional format: "• X% off (Title)"
+					discountNotes = append(discountNotes, fmt.Sprintf("• %s%% off (%s)", discount.Value, discount.Title))
 				} else if discount.ValueType == "fixed_amount" {
 					discountAmount, _ = parsePrice(discount.Amount)
-					discountNotes = append(discountNotes, fmt.Sprintf("$%s (%s)", discount.Amount, discount.Title))
+					// Professional format: "• $X.XX (Title)"
+					discountNotes = append(discountNotes, fmt.Sprintf("• $%s (%s)", discount.Amount, discount.Title))
 				}
 				// Apply discount to current price
 				currentPrice = currentPrice - discountAmount
