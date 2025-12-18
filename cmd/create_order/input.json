@@ -791,7 +791,8 @@
         "splitOrders": null,
         "additionalData": {
             "app_version": "25.12.17",
-            "device_info": ""
+            "device_info": "",
+            "shipping_note": "ABC"
         },
         "isEstimation": false,
         "useRewardPoints": false,

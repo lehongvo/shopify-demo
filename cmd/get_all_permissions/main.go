@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-	fmt.Println("=== Getting All Shopify API Permissions (Access Scopes) ===\n")
+	fmt.Println("=== Getting All Shopify API Permissions (Access Scopes) ===")
+	fmt.Println()
 
 	// Method 1: Get current app installation scopes
 	fmt.Println("--- Method 1: Current App Installation Scopes ---")
@@ -126,7 +127,7 @@ func getAllAvailableScopes() {
 		},
 		"Draft Orders": {
 			{Handle: "read_draft_orders", Description: "Read draft orders"},
-			{Handle: "write_draft_orders", Description: "Modify draft orders"},
+			{Handle: "write_draft_orders", Description: "Modify draft orders (required for draftOrderCreate and draftOrderComplete)"},
 		},
 		"Inventory": {
 			{Handle: "read_inventory", Description: "Read inventory"},
@@ -162,7 +163,8 @@ func getAllAvailableScopes() {
 		},
 	}
 
-	fmt.Println("All Available Shopify API Scopes:\n")
+	fmt.Println("All Available Shopify API Scopes:")
+	fmt.Println()
 	
 	// Get current scopes to mark which ones are enabled
 	currentScopes := getCurrentScopesList()

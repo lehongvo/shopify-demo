@@ -2031,6 +2031,113 @@ func CreateOrder(input OrderInput) (*OrderResponse, error) {
 	return &response, nil
 }
 
+// EnsureShippingNoteMetafieldDefinition ensures that the Shipping Note metafield definition exists
+// This function should be called when the app starts to automatically create the definition
+// if it doesn't already exist. This makes the metafield structured and visible in Shopify Admin UI.
+func EnsureShippingNoteMetafieldDefinition() error {
+	const namespace = "connectpos"
+	const key = "shipping_note"
+	const name = "Shipping Note"
+	const description = "Ghi chú vận chuyển cho đơn hàng từ ConnectPOS"
+	const typeName = "multi_line_text_field"
+
+	// First, check if definition already exists
+	checkQuery := `
+		query {
+			metafieldDefinitions(first: 250, ownerType: ORDER, namespace: "` + namespace + `") {
+				edges {
+					node {
+						name
+						namespace
+						key
+						type {
+							name
+						}
+					}
+				}
+			}
+		}
+	`
+
+	resp, err := callAdminGraphQL(checkQuery, nil)
+	if err != nil {
+		return fmt.Errorf("failed to check existing metafield definitions: %w", err)
+	}
+
+	// Check if definition already exists
+	if data, ok := resp["data"].(map[string]interface{}); ok {
+		if definitions, ok := data["metafieldDefinitions"].(map[string]interface{}); ok {
+			if edges, ok := definitions["edges"].([]interface{}); ok {
+				for _, edge := range edges {
+					if edgeMap, ok := edge.(map[string]interface{}); ok {
+						if node, ok := edgeMap["node"].(map[string]interface{}); ok {
+							if nodeKey, ok := node["key"].(string); ok && nodeKey == key {
+								// Definition already exists, skip creation
+								fmt.Printf("✓ Metafield definition '%s.%s' already exists, skipping creation\n", namespace, key)
+								return nil
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Definition doesn't exist, create it
+	createMutation := `
+		mutation {
+			metafieldDefinitionCreate(definition: {
+				name: "` + name + `"
+				namespace: "` + namespace + `"
+				key: "` + key + `"
+				description: "` + description + `"
+				type: {
+					name: "` + typeName + `"
+				}
+				ownerType: ORDER
+				access: {
+					storefront: PUBLIC_READ
+					admin: MERCHANT_READ_WRITE
+				}
+			}) {
+				createdDefinition {
+					name
+					namespace
+					key
+					type {
+						name
+					}
+				}
+				userErrors {
+					field
+					message
+				}
+			}
+		}
+	`
+
+	resp, err = callAdminGraphQL(createMutation, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create metafield definition: %w", err)
+	}
+
+	// Check for user errors
+	if data, ok := resp["data"].(map[string]interface{}); ok {
+		if createResult, ok := data["metafieldDefinitionCreate"].(map[string]interface{}); ok {
+			if userErrors, ok := createResult["userErrors"].([]interface{}); ok && len(userErrors) > 0 {
+				return fmt.Errorf("failed to create metafield definition: %v", userErrors)
+			}
+			if createdDef, ok := createResult["createdDefinition"].(map[string]interface{}); ok {
+				fmt.Printf("✓ Successfully created metafield definition: %s.%s\n", namespace, key)
+				fmt.Printf("  Name: %v\n", createdDef["name"])
+				return nil
+			}
+		}
+	}
+
+	return fmt.Errorf("unexpected response when creating metafield definition")
+}
+
 // CreateOrderGraphQL creates a new order using GraphQL orderCreate mutation
 // This supports custom tax lines and discounts as recommended by Shopify
 // - Custom tax lines: supported via taxLines field

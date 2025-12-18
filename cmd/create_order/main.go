@@ -35,6 +35,11 @@ type NoteAttributeData struct {
 	Value string `json:"value"`
 }
 
+// AdditionalData holds extra fields that may come from the POS payload
+type AdditionalData struct {
+	ShippingNote string `json:"shipping_note,omitempty"`
+}
+
 type OrderData struct {
 	TaxLines            []TaxLineData            `json:"taxLines"`
 	TaxesIncluded       bool                     `json:"taxesIncluded"`
@@ -45,6 +50,8 @@ type OrderData struct {
 	BillingAddress      *AddressData             `json:"billingAddress"`
 	Customer            *CustomerData            `json:"customer,omitempty"`
 	Note                string                   `json:"note"`
+	ShippingNote        string                   `json:"shippingNote,omitempty"` // deprecated: use AdditionalData.ShippingNote
+	AdditionalData      *AdditionalData          `json:"additionalData,omitempty"`
 	NoteAttributes      []NoteAttributeData      `json:"noteAttributes,omitempty"`
 	Tags                string                   `json:"tags"`
 	TotalDiscounts      string                   `json:"totalDiscounts,omitempty"`
@@ -477,6 +484,17 @@ func buildOrderInputForGraphQL(inputData *InputData) app.OrderInput {
 		Tags:            parseTags(inputData.Order.Tags),
 	}
 
+	// Map Shipping Note to Shopify order metafield (prefer additionalData.shipping_note)
+	shippingNote := getShippingNote(inputData.Order)
+	if shippingNote != "" {
+		orderInput.Metafields = append(orderInput.Metafields, app.MetafieldInput{
+			Namespace: "connectpos",
+			Key:       "shipping_note",
+			Type:      "multi_line_text_field",
+			Value:     shippingNote,
+		})
+	}
+
 	// Convert line items with discount handling
 	// For line-item discounts: calculate price after discount and set in priceSet, add note in properties
 	for _, item := range inputData.Order.Items {
@@ -644,6 +662,19 @@ func buildOrderInputForGraphQL(inputData *InputData) app.OrderInput {
 	}
 
 	return orderInput
+}
+
+// getShippingNote picks shipping note from additionalData.shipping_note first, then falls back to shippingNote
+func getShippingNote(order OrderData) string {
+	if order.AdditionalData != nil {
+		if note := strings.TrimSpace(order.AdditionalData.ShippingNote); note != "" {
+			return note
+		}
+	}
+	if note := strings.TrimSpace(order.ShippingNote); note != "" {
+		return note
+	}
+	return ""
 }
 
 func applyUnicodeStrikethrough(text string) string {
