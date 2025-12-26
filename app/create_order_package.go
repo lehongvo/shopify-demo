@@ -242,9 +242,17 @@ type LocalizedFieldInput struct {
 }
 
 // ShippingLineInput represents shipping line details
+// Note: Shopify GraphQL API only supports 'title' and 'price' fields
+// Shipping tax is calculated automatically by Shopify based on:
+// - Shipping address (province/country)
+// - Tax settings of the shop
+// - Shipping line price
+// If you need to specify shipping tax explicitly, add it as a separate tax line after order completion
 type ShippingLineInput struct {
-	Title string  `json:"title,omitempty"`
-	Price float64 `json:"price,omitempty"`
+	Title string  `json:"title,omitempty"` // Shipping method title (e.g., "Car", "Standard Shipping")
+	Price float64 `json:"price,omitempty"` // Shipping cost (can include tax if using totalShippingIncTax)
+	// Note: Tax fields are NOT supported in ShippingLineInput
+	// Shopify will automatically calculate shipping tax based on address and tax settings
 }
 
 // PaymentTermsInput represents payment terms
@@ -2616,6 +2624,9 @@ func CreateDraftOrderREST(input OrderInput) (map[string]string, error) {
 		}
 		draftOrderPayload["shipping_address"] = shippingAddr
 	}
+
+	// Note: Shipping line is not supported in CreateDraftOrderREST (OrderInput)
+	// For shipping line support, use CreateDraftOrder (GraphQL) with DraftOrderInput
 
 	// Add tax lines (REST API draft orders may support this)
 	// According to Shopify REST API and goshopify library, tax_lines should have:

@@ -59,6 +59,11 @@ type OrderData struct {
 	DiscountCodes       []string                 `json:"discountCodes,omitempty"`
 	SubtotalPrice       string                   `json:"subtotalPrice,omitempty"`
 	TotalPrice          string                   `json:"totalPrice,omitempty"`
+	ShippingMethod      string                   `json:"shippingMethod,omitempty"`
+	TotalShipping       string                   `json:"totalShipping,omitempty"`
+	TotalShippingIncTax string                   `json:"totalShippingIncTax,omitempty"`
+	TotalShippingExTax  string                   `json:"totalShippingExTax,omitempty"`
+	TotalTaxShipping    string                   `json:"totalTaxShipping,omitempty"`
 }
 
 type TaxLineData struct {
@@ -129,12 +134,18 @@ func main() {
 	draftID := draftResp.Data.DraftOrderCreate.DraftOrder.ID
 
 	// Step 3: Convert tax lines from input.json if available
-	var taxLines []app.TaxLineInput
+	// Separate product tax lines from shipping tax
+	var productTaxLines []app.TaxLineInput
+	var shippingTaxLine *app.TaxLineInput
+
 	if len(inputData.Order.TaxLines) > 0 {
-		taxLines = make([]app.TaxLineInput, len(inputData.Order.TaxLines))
-		for i, tl := range inputData.Order.TaxLines {
+		productTaxLines = make([]app.TaxLineInput, 0, len(inputData.Order.TaxLines))
+		for _, tl := range inputData.Order.TaxLines {
+			// Skip shipping tax lines (they will be added separately)
+			// Shipping tax is identified by checking if it's related to shipping
+			// For now, we'll add all tax lines as product tax, and shipping tax separately
 			rate, _ := strconv.ParseFloat(tl.Rate, 64)
-			taxLines[i] = app.TaxLineInput{
+			productTaxLines = append(productTaxLines, app.TaxLineInput{
 				Title: tl.Title,
 				Rate:  rate,
 				PriceSet: &app.MoneyBagInput{
@@ -143,7 +154,45 @@ func main() {
 						CurrencyCode: "USD",
 					},
 				},
+			})
+		}
+	}
+
+	// Calculate shipping tax line if shipping tax data is available
+	if inputData.Order.TotalTaxShipping != "" {
+		if shippingTaxAmount, ok := parsePrice(inputData.Order.TotalTaxShipping); ok && shippingTaxAmount > 0 {
+			// Calculate shipping tax rate from totalTaxShipping and totalShippingExTax
+			shippingTaxRate := 0.0
+			if inputData.Order.TotalShippingExTax != "" {
+				if shippingExTax, ok := parsePrice(inputData.Order.TotalShippingExTax); ok && shippingExTax > 0 {
+					shippingTaxRate = shippingTaxAmount / shippingExTax
+				}
 			}
+			
+			// If rate is 0, try to get from tax lines (look for shipping-related tax)
+			if shippingTaxRate == 0 && len(inputData.Order.TaxLines) > 0 {
+				// Use the rate from the last tax line (often shipping tax is last)
+				// Or use a common shipping tax rate like 0.065 (6.5%)
+				for _, tl := range inputData.Order.TaxLines {
+					if rate, err := strconv.ParseFloat(tl.Rate, 64); err == nil {
+						shippingTaxRate = rate
+						break
+					}
+				}
+			}
+
+			shippingTaxLine = &app.TaxLineInput{
+				Title: "Shipping Tax",
+				Rate:  shippingTaxRate,
+				PriceSet: &app.MoneyBagInput{
+					ShopMoney: &app.MoneyInput{
+						Amount:       fmt.Sprintf("%.2f", shippingTaxAmount),
+						CurrencyCode: "USD",
+					},
+				},
+				Source: "external", // Mark as external source
+			}
+			fmt.Printf("Debug: Shipping tax calculated: %.2f (rate: %.4f)\n", shippingTaxAmount, shippingTaxRate)
 		}
 	}
 
@@ -166,22 +215,55 @@ func main() {
 	if shippingNote != "" && orderInfo.OrderID != "" {
 		if err := addShippingNoteMetafield(orderInfo.OrderID, shippingNote); err != nil {
 			log.Printf("Warning: Failed to add shipping note metafield: %v\n", err)
+		} else {
+			log.Printf("✓ Successfully added shipping note metafield to order\n")
 		}
 	}
 
-	// Step 7: Add tax lines to order if provided (after completion)
-	if len(taxLines) > 0 && orderInfo.OrderID != "" {
-		if err := app.AddTaxToOrder(orderInfo.OrderID, taxLines); err != nil {
+	// Step 6b: Add shipping tax info to order note if available
+	// This ensures shipping tax is visible in admin even if Shopify merges tax lines
+	if shippingTaxLine != nil && orderInfo.OrderID != "" {
+		if err := addShippingTaxToOrderNote(orderInfo.OrderID, shippingTaxLine); err != nil {
+			log.Printf("Warning: Failed to add shipping tax to order note: %v\n", err)
+		}
+	}
+
+	// Step 7: Combine product tax and shipping tax, then add all tax lines together
+	// Shopify may merge tax lines, so we'll add them all at once
+	allTaxLines := make([]app.TaxLineInput, 0)
+	
+	// Add product tax lines
+	allTaxLines = append(allTaxLines, productTaxLines...)
+	
+	// Add shipping tax line if available
+	if shippingTaxLine != nil {
+		allTaxLines = append(allTaxLines, *shippingTaxLine)
+		fmt.Printf("Debug: Shipping tax will be added: %s (rate: %.4f)\n", 
+			shippingTaxLine.PriceSet.ShopMoney.Amount, 
+			shippingTaxLine.Rate)
+	}
+
+	// Add all tax lines to order (after completion)
+	if len(allTaxLines) > 0 && orderInfo.OrderID != "" {
+		if err := app.AddTaxToOrder(orderInfo.OrderID, allTaxLines); err != nil {
 			log.Printf("Warning: Failed to add tax to order: %v\n", err)
+		} else {
+			if shippingTaxLine != nil {
+				fmt.Printf("✓ Tax lines added (including shipping tax: %s)\n", 
+					shippingTaxLine.PriceSet.ShopMoney.Amount)
+			}
 		}
 	}
 
 	// Print order details
 	fmt.Printf("✓ Order created successfully: %s (%s)\n", orderInfo.OrderName, orderInfo.OrderID)
 
-	// Query order details to show tax information
+	// Query order details to show tax information and metafields
 	if orderInfo.OrderID != "" {
 		queryOrderDetails(orderInfo.OrderID)
+		if shippingNote != "" {
+			queryOrderMetafields(orderInfo.OrderID)
+		}
 	}
 }
 
@@ -216,6 +298,21 @@ func queryOrderDetails(orderID string) {
 						}
 					}
 				}
+				shippingLine {
+					title
+					priceSet {
+						shopMoney {
+							amount
+							currencyCode
+						}
+					}
+					discountedPriceSet {
+						shopMoney {
+							amount
+							currencyCode
+						}
+					}
+				}
 			}
 		}`
 
@@ -241,6 +338,74 @@ func queryOrderDetails(orderID string) {
 				if shopMoney, ok := totalTax["shopMoney"].(map[string]interface{}); ok {
 					if amount, ok := shopMoney["amount"].(string); ok && amount != "" {
 						fmt.Printf("Total Tax: %s %s\n", amount, shopMoney["currencyCode"])
+					}
+				}
+			}
+			if shippingLine, ok := order["shippingLine"].(map[string]interface{}); ok {
+				if priceSet, ok := shippingLine["priceSet"].(map[string]interface{}); ok {
+					if shopMoney, ok := priceSet["shopMoney"].(map[string]interface{}); ok {
+						if amount, ok := shopMoney["amount"].(string); ok && amount != "" {
+							title := ""
+							if titleVal, ok := shippingLine["title"].(string); ok {
+								title = titleVal
+							}
+							fmt.Printf("Shipping Line: %s - %s %s\n", title, amount, shopMoney["currencyCode"])
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// queryOrderMetafields queries the order to get metafields information
+func queryOrderMetafields(orderID string) {
+	const query = `
+		query GetOrderMetafields($id: ID!) {
+			order(id: $id) {
+				id
+				name
+				metafields(first: 10, namespace: "connectpos") {
+					edges {
+						node {
+							id
+							namespace
+							key
+							value
+							type
+						}
+					}
+				}
+			}
+		}`
+
+	variables := map[string]interface{}{
+		"id": orderID,
+	}
+
+	resp, err := app.CallAdminGraphQL(query, variables)
+	if err != nil {
+		log.Printf("Warning: Failed to query order metafields: %v\n", err)
+		return
+	}
+
+	if data, ok := resp["data"].(map[string]interface{}); ok {
+		if order, ok := data["order"].(map[string]interface{}); ok {
+			if metafields, ok := order["metafields"].(map[string]interface{}); ok {
+				if edges, ok := metafields["edges"].([]interface{}); ok {
+					if len(edges) > 0 {
+						fmt.Printf("\nOrder Metafields:\n")
+						for _, edge := range edges {
+							if edgeMap, ok := edge.(map[string]interface{}); ok {
+								if node, ok := edgeMap["node"].(map[string]interface{}); ok {
+									key := node["key"]
+									value := node["value"]
+									fmt.Printf("  - %s: %v\n", key, value)
+								}
+							}
+						}
+					} else {
+						fmt.Printf("\n⚠ No metafields found in order (namespace: connectpos)\n")
 					}
 				}
 			}
@@ -429,6 +594,53 @@ func buildDraftOrderFromInput(inputData *InputData) (app.DraftOrderInput, error)
 		draftInput.ShippingAddress = convertAddress(inputData.Order.ShippingAddress)
 	}
 
+	// Map shipping line (shipping cost)
+	// If totalShippingIncTax is provided, use it (includes tax)
+	// Otherwise, use totalShippingExTax or totalShipping
+	// Note: ShippingLineInput only supports 'title' and 'price' fields
+	// Shipping tax will be calculated automatically by Shopify based on shipping address and tax settings
+	// To specify shipping tax explicitly, add it as a separate tax line after order completion
+	if inputData.Order.TotalShippingIncTax != "" {
+		if shippingPrice, ok := parsePrice(inputData.Order.TotalShippingIncTax); ok && shippingPrice > 0 {
+			shippingTitle := inputData.Order.ShippingMethod
+			if shippingTitle == "" {
+				shippingTitle = "Shipping"
+			}
+			draftInput.ShippingLine = &app.ShippingLineInput{
+				Title: shippingTitle,
+				Price: math.Round(shippingPrice*100) / 100,
+			}
+			fmt.Printf("Debug: Setting shipping line with totalShippingIncTax: %s (title: %s, price: %.2f)\n",
+				inputData.Order.TotalShippingIncTax, shippingTitle, shippingPrice)
+		}
+	} else if inputData.Order.TotalShippingExTax != "" {
+		if shippingPrice, ok := parsePrice(inputData.Order.TotalShippingExTax); ok && shippingPrice > 0 {
+			shippingTitle := inputData.Order.ShippingMethod
+			if shippingTitle == "" {
+				shippingTitle = "Shipping"
+			}
+			draftInput.ShippingLine = &app.ShippingLineInput{
+				Title: shippingTitle,
+				Price: math.Round(shippingPrice*100) / 100,
+			}
+			fmt.Printf("Debug: Setting shipping line with totalShippingExTax: %s (title: %s, price: %.2f)\n",
+				inputData.Order.TotalShippingExTax, shippingTitle, shippingPrice)
+		}
+	} else if inputData.Order.TotalShipping != "" {
+		if shippingPrice, ok := parsePrice(inputData.Order.TotalShipping); ok && shippingPrice > 0 {
+			shippingTitle := inputData.Order.ShippingMethod
+			if shippingTitle == "" {
+				shippingTitle = "Shipping"
+			}
+			draftInput.ShippingLine = &app.ShippingLineInput{
+				Title: shippingTitle,
+				Price: math.Round(shippingPrice*100) / 100,
+			}
+			fmt.Printf("Debug: Setting shipping line with totalShipping: %s (title: %s, price: %.2f)\n",
+				inputData.Order.TotalShipping, shippingTitle, shippingPrice)
+		}
+	}
+
 	// Map billing address
 	if inputData.Order.BillingAddress != nil {
 		draftInput.BillingAddress = convertAddress(inputData.Order.BillingAddress)
@@ -492,9 +704,9 @@ func getShippingNote(order OrderData) string {
 // addShippingNoteMetafield adds shipping note metafield to an order using GraphQL
 func addShippingNoteMetafield(orderID string, shippingNote string) error {
 	const mutation = `
-		mutation CreateMetafield($metafield: MetafieldInput!) {
-			metafieldCreate(metafield: $metafield) {
-				metafield {
+		mutation SetMetafields($metafields: [MetafieldsSetInput!]!) {
+			metafieldsSet(metafields: $metafields) {
+				metafields {
 					id
 					namespace
 					key
@@ -516,7 +728,7 @@ func addShippingNoteMetafield(orderID string, shippingNote string) error {
 	}
 
 	variables := map[string]interface{}{
-		"metafield": metafieldInput,
+		"metafields": []interface{}{metafieldInput},
 	}
 
 	resp, err := app.CallAdminGraphQL(mutation, variables)
@@ -529,15 +741,103 @@ func addShippingNoteMetafield(orderID string, shippingNote string) error {
 		return fmt.Errorf("GraphQL errors: %v", errors)
 	}
 
-		// Check for user errors
-		if data, ok := resp["data"].(map[string]interface{}); ok {
-			if createResult, ok := data["metafieldCreate"].(map[string]interface{}); ok {
-				if userErrors, ok := createResult["userErrors"].([]interface{}); ok && len(userErrors) > 0 {
-					return fmt.Errorf("user errors: %v", userErrors)
+	// Check for user errors
+	if data, ok := resp["data"].(map[string]interface{}); ok {
+		if setResult, ok := data["metafieldsSet"].(map[string]interface{}); ok {
+			if userErrors, ok := setResult["userErrors"].([]interface{}); ok && len(userErrors) > 0 {
+				return fmt.Errorf("user errors: %v", userErrors)
+			}
+			// Log success with metafield details
+			if metafields, ok := setResult["metafields"].([]interface{}); ok && len(metafields) > 0 {
+				if mf, ok := metafields[0].(map[string]interface{}); ok {
+					log.Printf("Debug: Metafield created - ID: %v, Key: %v, Value: %v\n", 
+						mf["id"], mf["key"], mf["value"])
 				}
-				return nil
+			}
+			return nil
+		}
+	}
+
+	return fmt.Errorf("unexpected response format")
+}
+
+// addShippingTaxToOrderNote adds shipping tax information to order note
+// This ensures shipping tax is visible in admin even if Shopify merges tax lines
+func addShippingTaxToOrderNote(orderID string, shippingTaxLine *app.TaxLineInput) error {
+	// First, get current order note
+	const getQuery = `
+		query GetOrder($id: ID!) {
+			order(id: $id) {
+				id
+				note
+			}
+		}`
+
+	variables := map[string]interface{}{
+		"id": orderID,
+	}
+
+	resp, err := app.CallAdminGraphQL(getQuery, variables)
+	if err != nil {
+		return fmt.Errorf("failed to get order: %w", err)
+	}
+
+	currentNote := ""
+	if data, ok := resp["data"].(map[string]interface{}); ok {
+		if order, ok := data["order"].(map[string]interface{}); ok {
+			if note, ok := order["note"].(string); ok {
+				currentNote = note
 			}
 		}
+	}
+
+	// Append shipping tax info to note
+	shippingTaxNote := fmt.Sprintf("\n\n--- Shipping Tax ---\n%s: %s (Rate: %.2f%%)",
+		shippingTaxLine.Title,
+		shippingTaxLine.PriceSet.ShopMoney.Amount,
+		shippingTaxLine.Rate*100)
+
+	newNote := currentNote + shippingTaxNote
+
+	// Update order note
+	const updateMutation = `
+		mutation UpdateOrderNote($id: ID!, $note: String!) {
+			orderUpdate(input: { id: $id, note: $note }) {
+				order {
+					id
+					note
+				}
+				userErrors {
+					field
+					message
+				}
+			}
+		}`
+
+	updateVars := map[string]interface{}{
+		"id":   orderID,
+		"note": newNote,
+	}
+
+	updateResp, err := app.CallAdminGraphQL(updateMutation, updateVars)
+	if err != nil {
+		return fmt.Errorf("failed to update order note: %w", err)
+	}
+
+	// Check for errors
+	if errors, ok := updateResp["errors"].([]interface{}); ok && len(errors) > 0 {
+		return fmt.Errorf("GraphQL errors: %v", errors)
+	}
+
+	if data, ok := updateResp["data"].(map[string]interface{}); ok {
+		if orderUpdate, ok := data["orderUpdate"].(map[string]interface{}); ok {
+			if userErrors, ok := orderUpdate["userErrors"].([]interface{}); ok && len(userErrors) > 0 {
+				return fmt.Errorf("user errors: %v", userErrors)
+			}
+			fmt.Printf("✓ Shipping tax info added to order note\n")
+			return nil
+		}
+	}
 
 	return fmt.Errorf("unexpected response format")
 }

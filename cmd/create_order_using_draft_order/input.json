@@ -20,10 +20,10 @@
             {
                 "paymentCode": "cash",
                 "paymentName": "Cash",
-                "amount": "972.10",
-                "amountBeforRound": "972.100000000000",
+                "amount": "959.95",
+                "amountBeforRound": "959.950000000000",
                 "isChanging": true,
-                "processedAt": "2025-12-15T02:27:11.144Z",
+                "processedAt": "2025-12-23T04:09:58.519Z",
                 "type": "sale",
                 "paymentDetails": {
                     "isConvertFromSC": "false",
@@ -31,7 +31,7 @@
                     "base_currency": "USD",
                     "presentment_currency": "USD",
                     "presentment_exchange_rate": "1",
-                    "app_version": "25.12.17",
+                    "app_version": "25.12.31",
                     "device_info": "",
                     "configs": ""
                 },
@@ -39,17 +39,17 @@
                 "presentmentCurrency": "USD",
                 "currencyExchangeRate": "1",
                 "presentmentCurrencySymbol": "$",
-                "hashId": "41faaace-0089-4df9-a782-f25c17b93758"
+                "hashId": "5737cf54-e08b-4347-bc09-efdf883bde9a"
             }
         ],
         "initialPayments": [
             {
                 "paymentCode": "cash",
                 "paymentName": "Cash",
-                "amount": "972.10",
-                "amountBeforRound": "972.100000000000",
+                "amount": "959.95",
+                "amountBeforRound": "959.950000000000",
                 "isChanging": true,
-                "processedAt": "2025-12-15T02:27:11.144Z",
+                "processedAt": "2025-12-23T04:09:58.519Z",
                 "type": "sale",
                 "paymentDetails": {
                     "isConvertFromSC": "false",
@@ -57,7 +57,7 @@
                     "base_currency": "USD",
                     "presentment_currency": "USD",
                     "presentment_exchange_rate": "1",
-                    "app_version": "25.12.17",
+                    "app_version": "25.12.31",
                     "device_info": "",
                     "configs": ""
                 },
@@ -65,179 +65,28 @@
                 "presentmentCurrency": "USD",
                 "currencyExchangeRate": "1",
                 "presentmentCurrencySymbol": "$",
-                "hashId": "41faaace-0089-4df9-a782-f25c17b93758"
+                "hashId": "5737cf54-e08b-4347-bc09-efdf883bde9a"
             }
         ],
         "items": [
-            {
-                "uuid": "9755435761904",
-                "productId": "48360774566128",
-                "productParentId": "9755435761904",
-                "name": "Selling Plans Ski Wax - Sample Selling Plans Ski Wax",
-                "quantity": 1,
-                "totalDiscount": "1.99000000000000",
-                "totalPrice": "7.96000000000000",
-                "totalPriceInReport": "9.27340000000000",
-                "inventoryIds": "50462514446576",
-                "options": [
-                    {
-                        "code": "title",
-                        "label": "Title",
-                        "items": [
-                            {
-                                "id": "12598266462448",
-                                "label": "Sample Selling Plans Ski Wax",
-                                "productIds": [
-                                    "48360774566128"
-                                ],
-                                "productSkus": [
-                                    ""
-                                ],
-                                "value": "Sample Selling Plans Ski Wax"
-                            },
-                            {
-                                "id": "12598266462448",
-                                "label": "Selling Plans Ski Wax",
-                                "productIds": [
-                                    "48360774500592"
-                                ],
-                                "productSkus": [
-                                    ""
-                                ],
-                                "value": "Selling Plans Ski Wax"
-                            },
-                            {
-                                "id": "12598266462448",
-                                "label": "Special Selling Plans Ski Wax",
-                                "productIds": [
-                                    "48360774533360"
-                                ],
-                                "productSkus": [
-                                    ""
-                                ],
-                                "value": "Special Selling Plans Ski Wax"
-                            }
-                        ],
-                        "price": "0.00000000000000",
-                        "priceIncTax": "0.00000000000000",
-                        "priceExTax": "0.00000000000000",
-                        "totalTax": "0.00000000000000",
-                        "quantity": 1,
-                        "originQuantityItem": 1,
-                        "value": "Sample Selling Plans Ski Wax",
-                        "productIds": [
-                            "48360774566128"
-                        ]
-                    }
-                ],
-                "requiresShipping": true,
-                "isSplitItem": false,
-                "isVerifiedQty": false,
-                "discountApplications": [
-                    {
-                        "title": "\nOriginal Price is <s>1999</s> \n",
-                        "value": "5",
-                        "valueType": "percentage",
-                        "amount": "0.50"
-                    },
-                    {
-                        "title": "Discount per item",
-                        "value": "20",
-                        "valueType": "percentage",
-                        "amount": "1.99"
-                    },
-                    {
-                        "title": "Additional Discount 2",
-                        "value": "3",
-                        "valueType": "percentage",
-                        "amount": "0.30"
-                    },
-                    {
-                        "title": "Additional Discount 3",
-                        "value": "2",
-                        "valueType": "percentage",
-                        "amount": "0.20"
-                    }
-                ],
-                "locationId": "89278578928",
-                "priceIncQty": "9.95",
-                "tax": "0",
-                "totalTax": "1.31340000000000",
-                "priceExTax": "9.95000000000000",
-                "tags": "Accessory,Sport,Winter",
-                "price": "9.95000000000000",
-                "imageUrl": "https://cdn.shopify.com/s/files/1/0806/0364/4144/files/snowboard_wax.png?v=1764575353",
-                "type": "configurable",
-                "taxable": true,
-                "productUuid": "48360774566128",
-                "priceIncTax": "11.26340000000000",
-                "isBOGOProduct": false,
-                "originPrice": "9.95",
-                "productParentUuid": "9755435761904",
-                "productName": "Selling Plans Ski Wax - Sample Selling Plans Ski Wax",
-                "subtotalPrice": "9.95",
-                "percentageCommissionTotal": 0,
-                "splitTotal": 0,
-                "parentId": "9755435761904",
-                "isDisableRefund": false,
-                "isVariant": false,
-                "originProductName": "Selling Plans Ski Wax",
-                "attributes": {
-                    "parent_name": "Selling Plans Ski Wax"
-                },
-                "taxesIncluded": false,
-                "isInStock": true,
-                "isFreeItem": false,
-                "isBuilder": false,
-                "imageCacheKey": "b5430a9a-1e59-48e6-aae5-692360c376e0",
-                "isRedeem": false,
-                "requireTaxId": false,
-                "vendor": "ConnectPOS Dev Store"
-            },
             {
                 "uuid": "48360774271216",
                 "productId": "48360774271216",
                 "productParentId": "9755435598064",
                 "name": "The Inventory Not Tracked Snowboard",
                 "quantity": 1,
-                "totalDiscount": "123.49350000000001",
-                "totalPrice": "826.45650000000001",
-                "totalPriceInReport": "962.82182250000005",
+                "totalDiscount": "0.00000000000000",
+                "totalPrice": "815.40772532188839",
+                "totalPriceInReport": "949.95000000000005",
                 "inventoryIds": "50462513922288",
                 "requiresShipping": true,
                 "isSplitItem": false,
                 "isVerifiedQty": false,
-                "discountApplications": [
-                    {
-                        "title": "\nOriginal Price is <s>1999</s> \n",
-                        "value": "2",
-                        "valueType": "percentage",
-                        "amount": "19.00"
-                    },
-                    {
-                        "title": "Discount per item",
-                        "value": "13",
-                        "valueType": "percentage",
-                        "amount": "123.4935"
-                    },
-                    {
-                        "title": "Additional Discount 2",
-                        "value": "1.5",
-                        "valueType": "percentage",
-                        "amount": "14.25"
-                    },
-                    {
-                        "title": "Additional Discount 3",
-                        "value": "1",
-                        "valueType": "percentage",
-                        "amount": "9.50"
-                    }
-                ],
                 "locationId": "89278578928",
                 "priceIncQty": "949.95",
                 "tax": "0",
-                "totalTax": "136.36532249999999",
-                "priceExTax": "949.95000000000005",
+                "totalTax": "134.54227467811160",
+                "priceExTax": "815.40772532188839",
                 "tags": "Accessory,Sport,Winter",
                 "sku": "sku-untracked-1",
                 "barcode": "sku-untracked-1",
@@ -246,27 +95,26 @@
                 "type": "simple",
                 "taxable": true,
                 "productUuid": "48360774271216",
-                "priceIncTax": "1086.31532250000009",
+                "priceIncTax": "949.95000000000005",
                 "isBOGOProduct": false,
                 "originPrice": "949.95",
                 "productParentUuid": "9755435598064",
                 "productName": "The Inventory Not Tracked Snowboard",
-                "subtotalPrice": "949.95",
+                "subtotalPrice": "815.41",
                 "percentageCommissionTotal": 0,
                 "splitTotal": 0,
                 "parentId": "9755435598064",
                 "isDisableRefund": false,
                 "isVariant": false,
-                "originProductName": "The Inventory Not Tracked Snowboard",
                 "attributes": {
                     "product_type": "snowboard",
                     "barcode": "sku-untracked-1"
                 },
-                "taxesIncluded": false,
+                "taxesIncluded": true,
                 "isInStock": true,
                 "isFreeItem": false,
                 "isBuilder": false,
-                "imageCacheKey": "3036b28a-d165-4fb8-bc76-aba29bfb0b10",
+                "imageCacheKey": "5b611d86-3031-42a9-9deb-0b94d4269b39",
                 "isRedeem": false,
                 "requireTaxId": false,
                 "vendor": "ConnectPOS Dev Store"
@@ -274,174 +122,23 @@
         ],
         "fulfillmentItems": [
             {
-                "uuid": "9755435761904",
-                "productId": "48360774566128",
-                "productParentId": "9755435761904",
-                "name": "Selling Plans Ski Wax - Sample Selling Plans Ski Wax",
-                "quantity": 1,
-                "totalDiscount": "1.99000000000000",
-                "totalPrice": "7.96000000000000",
-                "totalPriceInReport": "9.27340000000000",
-                "inventoryIds": "50462514446576",
-                "options": [
-                    {
-                        "code": "title",
-                        "label": "Title",
-                        "items": [
-                            {
-                                "id": "12598266462448",
-                                "label": "Sample Selling Plans Ski Wax",
-                                "productIds": [
-                                    "48360774566128"
-                                ],
-                                "productSkus": [
-                                    ""
-                                ],
-                                "value": "Sample Selling Plans Ski Wax"
-                            },
-                            {
-                                "id": "12598266462448",
-                                "label": "Selling Plans Ski Wax",
-                                "productIds": [
-                                    "48360774500592"
-                                ],
-                                "productSkus": [
-                                    ""
-                                ],
-                                "value": "Selling Plans Ski Wax"
-                            },
-                            {
-                                "id": "12598266462448",
-                                "label": "Special Selling Plans Ski Wax",
-                                "productIds": [
-                                    "48360774533360"
-                                ],
-                                "productSkus": [
-                                    ""
-                                ],
-                                "value": "Special Selling Plans Ski Wax"
-                            }
-                        ],
-                        "price": "0.00000000000000",
-                        "priceIncTax": "0.00000000000000",
-                        "priceExTax": "0.00000000000000",
-                        "totalTax": "0.00000000000000",
-                        "quantity": 1,
-                        "originQuantityItem": 1,
-                        "value": "Sample Selling Plans Ski Wax",
-                        "productIds": [
-                            "48360774566128"
-                        ]
-                    }
-                ],
-                "requiresShipping": true,
-                "isSplitItem": false,
-                "isVerifiedQty": false,
-                "discountApplications": [
-                    {
-                        "title": "\nOriginal Price is <s>1999</s> \n",
-                        "value": "5",
-                        "valueType": "percentage",
-                        "amount": "0.50"
-                    },
-                    {
-                        "title": "Discount per item",
-                        "value": "20",
-                        "valueType": "percentage",
-                        "amount": "1.99"
-                    },
-                    {
-                        "title": "Additional Discount 2",
-                        "value": "3",
-                        "valueType": "percentage",
-                        "amount": "0.30"
-                    },
-                    {
-                        "title": "Additional Discount 3",
-                        "value": "2",
-                        "valueType": "percentage",
-                        "amount": "0.20"
-                    }
-                ],
-                "locationId": "89278578928",
-                "priceIncQty": "9.95",
-                "tax": "0",
-                "totalTax": "1.31340000000000",
-                "priceExTax": "9.95000000000000",
-                "tags": "Accessory,Sport,Winter",
-                "price": "9.95000000000000",
-                "imageUrl": "https://cdn.shopify.com/s/files/1/0806/0364/4144/files/snowboard_wax.png?v=1764575353",
-                "type": "configurable",
-                "taxable": true,
-                "productUuid": "48360774566128",
-                "priceIncTax": "11.26340000000000",
-                "isBOGOProduct": false,
-                "originPrice": "9.95",
-                "productParentUuid": "9755435761904",
-                "productName": "Selling Plans Ski Wax - Sample Selling Plans Ski Wax",
-                "subtotalPrice": "9.95",
-                "percentageCommissionTotal": 0,
-                "splitTotal": 0,
-                "parentId": "9755435761904",
-                "isDisableRefund": false,
-                "isVariant": false,
-                "originProductName": "Selling Plans Ski Wax",
-                "attributes": {
-                    "parent_name": "Selling Plans Ski Wax"
-                },
-                "taxesIncluded": false,
-                "isInStock": true,
-                "isFreeItem": false,
-                "isBuilder": false,
-                "imageCacheKey": "b5430a9a-1e59-48e6-aae5-692360c376e0",
-                "isRedeem": false,
-                "requireTaxId": false,
-                "vendor": "ConnectPOS Dev Store"
-            },
-            {
                 "uuid": "48360774271216",
                 "productId": "48360774271216",
                 "productParentId": "9755435598064",
                 "name": "The Inventory Not Tracked Snowboard",
                 "quantity": 1,
-                "totalDiscount": "123.49350000000001",
-                "totalPrice": "826.45650000000001",
-                "totalPriceInReport": "962.82182250000005",
+                "totalDiscount": "0.00000000000000",
+                "totalPrice": "815.40772532188839",
+                "totalPriceInReport": "949.95000000000005",
                 "inventoryIds": "50462513922288",
                 "requiresShipping": true,
                 "isSplitItem": false,
                 "isVerifiedQty": false,
-                "discountApplications": [
-                    {
-                        "title": "\nOriginal Price is <s>1999</s> \n",
-                        "value": "2",
-                        "valueType": "percentage",
-                        "amount": "19.00"
-                    },
-                    {
-                        "title": "Discount per item",
-                        "value": "13",
-                        "valueType": "percentage",
-                        "amount": "123.4935"
-                    },
-                    {
-                        "title": "Additional Discount 2",
-                        "value": "1.5",
-                        "valueType": "percentage",
-                        "amount": "14.25"
-                    },
-                    {
-                        "title": "Additional Discount 3",
-                        "value": "1",
-                        "valueType": "percentage",
-                        "amount": "9.50"
-                    }
-                ],
                 "locationId": "89278578928",
                 "priceIncQty": "949.95",
                 "tax": "0",
-                "totalTax": "136.36532249999999",
-                "priceExTax": "949.95000000000005",
+                "totalTax": "134.54227467811160",
+                "priceExTax": "815.40772532188839",
                 "tags": "Accessory,Sport,Winter",
                 "sku": "sku-untracked-1",
                 "barcode": "sku-untracked-1",
@@ -450,35 +147,34 @@
                 "type": "simple",
                 "taxable": true,
                 "productUuid": "48360774271216",
-                "priceIncTax": "1086.31532250000009",
+                "priceIncTax": "949.95000000000005",
                 "isBOGOProduct": false,
                 "originPrice": "949.95",
                 "productParentUuid": "9755435598064",
                 "productName": "The Inventory Not Tracked Snowboard",
-                "subtotalPrice": "949.95",
+                "subtotalPrice": "815.41",
                 "percentageCommissionTotal": 0,
                 "splitTotal": 0,
                 "parentId": "9755435598064",
                 "isDisableRefund": false,
                 "isVariant": false,
-                "originProductName": "The Inventory Not Tracked Snowboard",
                 "attributes": {
                     "product_type": "snowboard",
                     "barcode": "sku-untracked-1"
                 },
-                "taxesIncluded": false,
+                "taxesIncluded": true,
                 "isInStock": true,
                 "isFreeItem": false,
                 "isBuilder": false,
-                "imageCacheKey": "3036b28a-d165-4fb8-bc76-aba29bfb0b10",
+                "imageCacheKey": "5b611d86-3031-42a9-9deb-0b94d4269b39",
                 "isRedeem": false,
                 "requireTaxId": false,
                 "vendor": "ConnectPOS Dev Store"
             }
         ],
         "refundItems": [],
-        "totalPrice": "972.10",
-        "totalPaid": "972.10",
+        "totalPrice": "959.95",
+        "totalPaid": "959.95",
         "discountApplications": [],
         "discountCodes": [],
         "discountGiftCards": [],
@@ -508,15 +204,15 @@
             "isOutletAddress": true
         },
         "billingAddress": null,
-        "totalDiscounts": "125.48",
-        "totalTax": "137.68",
-        "subtotalPrice": "959.90",
+        "totalDiscounts": "0.00",
+        "totalTax": "134.54",
+        "subtotalPrice": "949.95",
         "fulfillmentStatus": "fulfilled",
-        "shippingMethod": null,
-        "totalShipping": null,
-        "totalShippingIncTax": null,
-        "totalShippingExTax": null,
-        "totalTaxShipping": null,
+        "shippingMethod": "Car",
+        "totalShipping": "10.00",
+        "totalShippingIncTax": "11.42",
+        "totalShippingExTax": "10.00",
+        "totalTaxShipping": "1.4163090128755371",
         "isExchange": false,
         "parentOrderId": "",
         "status": "paid",
@@ -526,17 +222,8 @@
             {
                 "id": "501",
                 "rate": "0.1",
-                "price": "83.442",
+                "price": "81.54",
                 "title": "us pos",
-                "taxClassId": "501",
-                "code": "US",
-                "isUsed": true
-            },
-            {
-                "id": "501",
-                "rate": "0.1",
-                "price": "83.442",
-                "title": "us pos1",
                 "taxClassId": "501",
                 "code": "US",
                 "isUsed": true
@@ -544,23 +231,23 @@
             {
                 "id": "897954513136-10721772142832",
                 "rate": "0.065",
-                "price": "54.237",
-                "title": "Washington1",
+                "price": "53.00",
+                "title": "Washington",
                 "taxClassId": "897954513136-10721772142832",
                 "code": "US",
                 "isUsed": true,
                 "applyAfterDiscount": true
             }
         ],
-        "hashId": "1bee5c56-b0c2-4ff3-ae9b-1c9422a7726f",
-        "subtotalIncTax": "1097.58",
-        "subtotalExTax": "959.90",
+        "hashId": "3480e7e9-feaf-4869-91a3-f1a85e4641c2",
+        "subtotalIncTax": "949.95",
+        "subtotalExTax": "815.41",
         "remain": "0.000",
         "requestBy": "",
         "requestByName": "",
         "salesman": "",
         "salesmanName": "",
-        "taxesIncluded": false,
+        "taxesIncluded": true,
         "cashier": "connectposdev",
         "cashierName": "ConnectPOS Dev",
         "currencyExchangeRate": "1",
@@ -569,174 +256,23 @@
         "staffNote": "",
         "commissionItems": [
             {
-                "uuid": "9755435761904",
-                "productId": "48360774566128",
-                "productParentId": "9755435761904",
-                "name": "Selling Plans Ski Wax - Sample Selling Plans Ski Wax",
-                "quantity": 1,
-                "totalDiscount": "1.99000000000000",
-                "totalPrice": "7.96000000000000",
-                "totalPriceInReport": "9.27340000000000",
-                "inventoryIds": "50462514446576",
-                "options": [
-                    {
-                        "code": "title",
-                        "label": "Title",
-                        "items": [
-                            {
-                                "id": "12598266462448",
-                                "label": "Sample Selling Plans Ski Wax",
-                                "productIds": [
-                                    "48360774566128"
-                                ],
-                                "productSkus": [
-                                    ""
-                                ],
-                                "value": "Sample Selling Plans Ski Wax"
-                            },
-                            {
-                                "id": "12598266462448",
-                                "label": "Selling Plans Ski Wax",
-                                "productIds": [
-                                    "48360774500592"
-                                ],
-                                "productSkus": [
-                                    ""
-                                ],
-                                "value": "Selling Plans Ski Wax"
-                            },
-                            {
-                                "id": "12598266462448",
-                                "label": "Special Selling Plans Ski Wax",
-                                "productIds": [
-                                    "48360774533360"
-                                ],
-                                "productSkus": [
-                                    ""
-                                ],
-                                "value": "Special Selling Plans Ski Wax"
-                            }
-                        ],
-                        "price": "0.00000000000000",
-                        "priceIncTax": "0.00000000000000",
-                        "priceExTax": "0.00000000000000",
-                        "totalTax": "0.00000000000000",
-                        "quantity": 1,
-                        "originQuantityItem": 1,
-                        "value": "Sample Selling Plans Ski Wax",
-                        "productIds": [
-                            "48360774566128"
-                        ]
-                    }
-                ],
-                "requiresShipping": true,
-                "isSplitItem": false,
-                "isVerifiedQty": false,
-                "discountApplications": [
-                    {
-                        "title": "\nOriginal Price is <s>1999</s> \n",
-                        "value": "5",
-                        "valueType": "percentage",
-                        "amount": "0.50"
-                    },
-                    {
-                        "title": "Discount per item",
-                        "value": "20",
-                        "valueType": "percentage",
-                        "amount": "1.99"
-                    },
-                    {
-                        "title": "Additional Discount 2",
-                        "value": "3",
-                        "valueType": "percentage",
-                        "amount": "0.30"
-                    },
-                    {
-                        "title": "Additional Discount 3",
-                        "value": "2",
-                        "valueType": "percentage",
-                        "amount": "0.20"
-                    }
-                ],
-                "locationId": "89278578928",
-                "priceIncQty": "9.95",
-                "tax": "0",
-                "totalTax": "1.31340000000000",
-                "priceExTax": "9.95000000000000",
-                "tags": "Accessory,Sport,Winter",
-                "price": "9.95000000000000",
-                "imageUrl": "https://cdn.shopify.com/s/files/1/0806/0364/4144/files/snowboard_wax.png?v=1764575353",
-                "type": "configurable",
-                "taxable": true,
-                "productUuid": "48360774566128",
-                "priceIncTax": "11.26340000000000",
-                "isBOGOProduct": false,
-                "originPrice": "9.95",
-                "productParentUuid": "9755435761904",
-                "productName": "Selling Plans Ski Wax - Sample Selling Plans Ski Wax",
-                "subtotalPrice": "9.95",
-                "percentageCommissionTotal": 0,
-                "splitTotal": 0,
-                "parentId": "9755435761904",
-                "isDisableRefund": false,
-                "isVariant": false,
-                "originProductName": "Selling Plans Ski Wax",
-                "attributes": {
-                    "parent_name": "Selling Plans Ski Wax"
-                },
-                "taxesIncluded": false,
-                "isInStock": true,
-                "isFreeItem": false,
-                "isBuilder": false,
-                "imageCacheKey": "b5430a9a-1e59-48e6-aae5-692360c376e0",
-                "isRedeem": false,
-                "requireTaxId": false,
-                "vendor": "ConnectPOS Dev Store"
-            },
-            {
                 "uuid": "48360774271216",
                 "productId": "48360774271216",
                 "productParentId": "9755435598064",
                 "name": "The Inventory Not Tracked Snowboard",
                 "quantity": 1,
-                "totalDiscount": "123.49350000000001",
-                "totalPrice": "826.45650000000001",
-                "totalPriceInReport": "962.82182250000005",
+                "totalDiscount": "0.00000000000000",
+                "totalPrice": "815.40772532188839",
+                "totalPriceInReport": "949.95000000000005",
                 "inventoryIds": "50462513922288",
                 "requiresShipping": true,
                 "isSplitItem": false,
                 "isVerifiedQty": false,
-                "discountApplications": [
-                    {
-                        "title": "\nOriginal Price is <s>1999</s> \n",
-                        "value": "2",
-                        "valueType": "percentage",
-                        "amount": "19.00"
-                    },
-                    {
-                        "title": "Discount per item",
-                        "value": "13",
-                        "valueType": "percentage",
-                        "amount": "123.4935"
-                    },
-                    {
-                        "title": "Additional Discount 2",
-                        "value": "1.5",
-                        "valueType": "percentage",
-                        "amount": "14.25"
-                    },
-                    {
-                        "title": "Additional Discount 3",
-                        "value": "1",
-                        "valueType": "percentage",
-                        "amount": "9.50"
-                    }
-                ],
                 "locationId": "89278578928",
                 "priceIncQty": "949.95",
                 "tax": "0",
-                "totalTax": "136.36532249999999",
-                "priceExTax": "949.95000000000005",
+                "totalTax": "134.54227467811160",
+                "priceExTax": "815.40772532188839",
                 "tags": "Accessory,Sport,Winter",
                 "sku": "sku-untracked-1",
                 "barcode": "sku-untracked-1",
@@ -745,27 +281,26 @@
                 "type": "simple",
                 "taxable": true,
                 "productUuid": "48360774271216",
-                "priceIncTax": "1086.31532250000009",
+                "priceIncTax": "949.95000000000005",
                 "isBOGOProduct": false,
                 "originPrice": "949.95",
                 "productParentUuid": "9755435598064",
                 "productName": "The Inventory Not Tracked Snowboard",
-                "subtotalPrice": "949.95",
+                "subtotalPrice": "815.41",
                 "percentageCommissionTotal": 0,
                 "splitTotal": 0,
                 "parentId": "9755435598064",
                 "isDisableRefund": false,
                 "isVariant": false,
-                "originProductName": "The Inventory Not Tracked Snowboard",
                 "attributes": {
                     "product_type": "snowboard",
                     "barcode": "sku-untracked-1"
                 },
-                "taxesIncluded": false,
+                "taxesIncluded": true,
                 "isInStock": true,
                 "isFreeItem": false,
                 "isBuilder": false,
-                "imageCacheKey": "3036b28a-d165-4fb8-bc76-aba29bfb0b10",
+                "imageCacheKey": "5b611d86-3031-42a9-9deb-0b94d4269b39",
                 "isRedeem": false,
                 "requireTaxId": false,
                 "vendor": "ConnectPOS Dev Store"
@@ -776,7 +311,7 @@
         "noteAttributes": [
             {
                 "name": "Lead Time",
-                "value": "1a"
+                "value": "You can type lead time here"
             }
         ],
         "tags": "",
@@ -786,13 +321,13 @@
         "shippingMethodId": null,
         "shippingMethodCarrierTitle": null,
         "shippingMethodCarrierCode": null,
-        "shippingMethodTitle": null,
+        "shippingMethodTitle": "Car",
         "customShippingData": null,
         "splitOrders": null,
         "additionalData": {
-            "app_version": "25.12.17",
-            "device_info": "",
-            "shipping_note": "Dev Testing shipping note"
+            "shipping_note": "Hello",
+            "app_version": "25.12.31",
+            "device_info": ""
         },
         "isEstimation": false,
         "useRewardPoints": false,
