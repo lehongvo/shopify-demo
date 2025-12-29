@@ -75,7 +75,7 @@
                 "productParentId": "9755435598064",
                 "name": "The Inventory Not Tracked Snowboard",
                 "quantity": 1,
-                "totalDiscount": "0.00000000000000",
+                "totalDiscount": "50.00",
                 "totalPrice": "815.40772532188839",
                 "totalPriceInReport": "949.95000000000005",
                 "inventoryIds": "50462513922288",
@@ -110,6 +110,14 @@
                     "product_type": "snowboard",
                     "barcode": "sku-untracked-1"
                 },
+                "discountApplications": [
+                    {
+                        "title": "Item Discount 10%",
+                        "value": "10",
+                        "valueType": "percentage",
+                        "amount": "50.00"
+                    }
+                ],
                 "taxesIncluded": true,
                 "isInStock": true,
                 "isFreeItem": false,
@@ -173,9 +181,16 @@
             }
         ],
         "refundItems": [],
-        "totalPrice": "959.95",
-        "totalPaid": "959.95",
-        "discountApplications": [],
+        "totalPrice": "909.95",
+        "totalPaid": "909.95",
+        "discountApplications": [
+            {
+                "title": "Order Discount 5%",
+                "value": "5",
+                "valueType": "percentage",
+                "amount": "50.00"
+            }
+        ],
         "discountCodes": [],
         "discountGiftCards": [],
         "source": "in_store",
@@ -204,7 +219,7 @@
             "isOutletAddress": true
         },
         "billingAddress": null,
-        "totalDiscounts": "0.00",
+        "totalDiscounts": "100.00",
         "totalTax": "134.54",
         "subtotalPrice": "949.95",
         "fulfillmentStatus": "fulfilled",

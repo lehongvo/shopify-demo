@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -184,7 +185,6 @@ type LineItemInput struct {
 	Title              string                    `json:"title,omitempty"`
 	Properties         []LineItemPropertyInput   `json:"properties,omitempty"` // For notes about discounts
 	TaxLines           []OrderCreateTaxLineInput `json:"taxLines,omitempty"`
-	DiscountAllocations []DiscountAllocationInput `json:"discountAllocations,omitempty"`
 }
 
 // LineItemPropertyInput represents a property/note on a line item
@@ -518,7 +518,7 @@ func QueryDraftOrder(draftID string) (map[string]interface{}, error) {
 				}
 				taxesIncluded
 				taxExempt
-				lineItems {
+				lineItems(first: 10) {
 					edges {
 						node {
 							id
@@ -529,6 +529,12 @@ func QueryDraftOrder(draftID string) (map[string]interface{}, error) {
 									amount
 									currencyCode
 								}
+							}
+							appliedDiscount {
+								title
+								valueType
+								value
+								description
 							}
 						}
 					}
@@ -1088,8 +1094,35 @@ func AddTaxToOrder(orderID string, taxLines []TaxLineInput) error {
 	}
 
 	// Approach 1: Try adding tax_lines at order level
-	fmt.Printf("Debug: Trying to add tax at order level...\n")
+	// IMPORTANT: Remove existing tax lines first, then add custom tax from input.json
+	fmt.Printf("Debug: Step 1 - Removing Shopify's auto-calculated tax...\n")
 	url := fmt.Sprintf("https://%s/admin/api/%s/orders/%s.json", shopDomain, apiVersion, orderNum)
+	
+	// Step 1: Remove existing tax lines
+	removeTaxPayload := map[string]interface{}{
+		"order": map[string]interface{}{
+			"id":        orderNum,
+			"tax_lines": []interface{}{}, // Clear existing tax
+		},
+	}
+	
+	removeBody, err := json.Marshal(removeTaxPayload)
+	if err == nil {
+		removeReq, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(removeBody))
+		if err == nil {
+			removeReq.Header.Set("Content-Type", "application/json")
+			removeReq.Header.Set("X-Shopify-Access-Token", accessToken)
+			removeResp, err := client.Do(removeReq)
+			if err == nil {
+				removeResp.Body.Close()
+				fmt.Printf("Debug: Existing tax removed, waiting 1 second before adding custom tax...\n")
+				time.Sleep(1 * time.Second) // Wait a bit for Shopify to process
+			}
+		}
+	}
+	
+	// Step 2: Add custom tax lines from input.json
+	fmt.Printf("Debug: Step 2 - Adding custom tax lines from input.json (%d tax lines)...\n", len(taxLinesRest))
 	payload := map[string]interface{}{
 		"order": map[string]interface{}{
 			"id":        orderNum,
@@ -1139,12 +1172,17 @@ func AddTaxToOrder(orderID string, taxLines []TaxLineInput) error {
 					}
 					if len(taxLines) > 0 {
 						if len(taxLines) < len(taxLinesRest) {
-							fmt.Printf("Debug: ⚠ Only %d tax lines added (expected: %d). Shopify may have merged or ignored some tax lines.\n", 
+							fmt.Printf("Debug: ⚠ Only %d tax lines added at order level (expected: %d). Trying line items to add all tax lines...\n", 
 								len(taxLines), len(taxLinesRest))
+							fmt.Printf("Debug: Sent tax lines: %v\n", taxLinesRest)
+							// Continue to try line items approach to add all tax lines
 						} else {
-							fmt.Printf("Debug: ✓ Tax lines successfully added at order level: %d\n", len(taxLines))
+							fmt.Printf("Debug: ✓ All tax lines successfully added at order level: %d\n", len(taxLines))
+							return nil
 						}
-						return nil
+					} else {
+						// No tax lines added, continue to line items approach
+						fmt.Printf("Debug: No tax lines were added at order level, trying line items...\n")
 					}
 				} else {
 					fmt.Printf("Debug: No tax_lines field in response\n")
@@ -1154,7 +1192,7 @@ func AddTaxToOrder(orderID string, taxLines []TaxLineInput) error {
 			fmt.Printf("Debug: Failed to parse response: %v\n", err)
 		}
 	} else {
-		fmt.Printf("Debug: Response status: %d\n", resp.StatusCode)
+		fmt.Printf("Debug: Response status: %d, body: %s\n", resp.StatusCode, string(bodyBytes))
 	}
 
 	// Approach 2: If order-level failed, try adding tax to line items
@@ -1227,28 +1265,33 @@ func AddTaxToOrder(orderID string, taxLines []TaxLineInput) error {
 			}
 		}
 
-		// Distribute tax proportionally
-		lineItemTax := 0.0
+		// Distribute ALL tax lines proportionally to this line item
+		lineItemTaxLines := []map[string]interface{}{}
 		if totalPrice > 0 && len(taxLinesRest) > 0 {
-			if totalTaxPrice, ok := taxLinesRest[0]["price"].(string); ok {
-				if totalTax, err := strconv.ParseFloat(totalTaxPrice, 64); err == nil {
-					lineItemTax = (lineItemPrice / totalPrice) * totalTax
+			for _, taxLine := range taxLinesRest {
+				// Calculate tax amount for this line item based on proportion
+				if taxPrice, ok := taxLine["price"].(string); ok {
+					if totalTax, err := strconv.ParseFloat(taxPrice, 64); err == nil {
+						lineItemTax := (lineItemPrice / totalPrice) * totalTax
+						if lineItemTax > 0 {
+							lineTaxLine := map[string]interface{}{
+								"title": taxLine["title"],
+								"rate":  taxLine["rate"],
+								"price": fmt.Sprintf("%.2f", math.Round(lineItemTax*100)/100),
+							}
+							if source, ok := taxLine["source"].(string); ok && source != "" {
+								lineTaxLine["source"] = source
+							} else {
+								// Set source to MANUAL for custom tax
+								lineTaxLine["source"] = "manual"
+							}
+							lineItemTaxLines = append(lineItemTaxLines, lineTaxLine)
+							fmt.Printf("Debug: Adding tax line to line item %d: %s (rate: %v, amount: %.2f)\n", 
+								i+1, taxLine["title"], taxLine["rate"], lineItemTax)
+						}
+					}
 				}
 			}
-		}
-
-		// Create tax line for this line item
-		lineItemTaxLines := []map[string]interface{}{}
-		if lineItemTax > 0 && len(taxLinesRest) > 0 {
-			lineTaxLine := map[string]interface{}{
-				"title": taxLinesRest[0]["title"],
-				"rate":  taxLinesRest[0]["rate"],
-				"price": fmt.Sprintf("%.2f", lineItemTax),
-			}
-			if source, ok := taxLinesRest[0]["source"].(string); ok && source != "" {
-				lineTaxLine["source"] = source
-			}
-			lineItemTaxLines = append(lineItemTaxLines, lineTaxLine)
 		}
 
 		// Update line item
@@ -1309,17 +1352,25 @@ func AddTaxToOrder(orderID string, taxLines []TaxLineInput) error {
 			// Check line-item tax
 			if lineItems, ok := finalOrder["line_items"].([]interface{}); ok {
 				totalLineItemTax := 0
-				for _, li := range lineItems {
+				fmt.Printf("Debug: Checking tax lines in line items...\n")
+				for i, li := range lineItems {
 					if liMap, ok := li.(map[string]interface{}); ok {
 						if taxLines, ok := liMap["tax_lines"].([]interface{}); ok {
 							if len(taxLines) > 0 {
 								totalLineItemTax += len(taxLines)
+								fmt.Printf("Debug: Line item %d has %d tax line(s):\n", i+1, len(taxLines))
+								for j, tl := range taxLines {
+									if tlMap, ok := tl.(map[string]interface{}); ok {
+										fmt.Printf("Debug:   Tax %d: title=%v, rate=%v, price=%v\n", 
+											j+1, tlMap["title"], tlMap["rate"], tlMap["price"])
+									}
+								}
 							}
 						}
 					}
 				}
 				if totalLineItemTax > 0 {
-					fmt.Printf("Debug: ✓ Tax lines successfully added to line items: %d\n", totalLineItemTax)
+					fmt.Printf("Debug: ✓ Tax lines successfully added to line items: %d total\n", totalLineItemTax)
 					return nil
 				}
 			}
@@ -1327,6 +1378,95 @@ func AddTaxToOrder(orderID string, taxLines []TaxLineInput) error {
 	}
 
 	return fmt.Errorf("failed to add tax lines (tried both order-level and line-item level)")
+}
+
+// TaxLineRestInput represents a simple tax line input for REST API
+type TaxLineRestInput struct {
+	Title string
+	Rate  float64
+	Price float64
+}
+
+// UpdateOrderTaxLinesREST updates order tax lines using REST API
+// This is used to restore custom tax lines after Order Edit API recalculates them
+func UpdateOrderTaxLinesREST(orderID string, taxLines []TaxLineRestInput) error {
+	shopDomain := os.Getenv("SHOPIFY_SHOP_DOMAIN")
+	accessToken := os.Getenv("SHOPIFY_API_SECRET")
+
+	if shopDomain == "" || accessToken == "" {
+		return fmt.Errorf("SHOPIFY_SHOP_DOMAIN and SHOPIFY_API_SECRET must be set")
+	}
+
+	apiVersion := "2025-10"
+	url := fmt.Sprintf("https://%s/admin/api/%s/orders/%s.json", shopDomain, apiVersion, orderID)
+
+	// Build tax_lines array for REST API
+	restTaxLines := []map[string]interface{}{}
+	var totalTax float64
+	for _, tl := range taxLines {
+		restTaxLines = append(restTaxLines, map[string]interface{}{
+			"title": tl.Title,
+			"rate":  tl.Rate,
+			"price": fmt.Sprintf("%.2f", tl.Price),
+		})
+		totalTax += tl.Price
+		fmt.Printf("  → Restoring tax line: %s (rate: %.4f, amount: $%.2f)\n", tl.Title, tl.Rate, tl.Price)
+	}
+
+	// Update order with custom tax lines
+	payload := map[string]interface{}{
+		"order": map[string]interface{}{
+			"id":        orderID,
+			"tax_lines": restTaxLines,
+			"total_tax": fmt.Sprintf("%.2f", totalTax),
+		},
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Shopify-Access-Token", accessToken)
+
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to execute request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	// Verify tax lines were updated
+	var respData map[string]interface{}
+	if err := json.Unmarshal(bodyBytes, &respData); err != nil {
+		return fmt.Errorf("failed to parse response: %w", err)
+	}
+
+	if order, ok := respData["order"].(map[string]interface{}); ok {
+		if updatedTaxLines, ok := order["tax_lines"].([]interface{}); ok {
+			fmt.Printf("  → Updated order with %d tax line(s)\n", len(updatedTaxLines))
+		}
+	}
+
+	return nil
 }
 
 // UpdateOrderTaxGraphQL attempts to update order tax using GraphQL orderUpdate mutation
@@ -2214,9 +2354,6 @@ func CreateOrderGraphQL(input OrderInput) (*OrderResponse, error) {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Debug: print request payload
-	fmt.Printf("Debug: GraphQL orderCreate request:\n%s\n\n", string(jsonData))
-
 	// Construct API endpoint
 	apiVersion := "2025-10"
 	url := fmt.Sprintf("https://%s/admin/api/%s/graphql.json", shopDomain, apiVersion)
@@ -2248,10 +2385,6 @@ func CreateOrderGraphQL(input OrderInput) (*OrderResponse, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response: %w", err)
 	}
-
-	// Debug: print response
-	fmt.Printf("Debug: GraphQL orderCreate response status: %d\n", resp.StatusCode)
-	fmt.Printf("Debug: GraphQL orderCreate response body:\n%s\n\n", string(body))
 
 	// Check HTTP status
 	if resp.StatusCode != http.StatusOK {
@@ -2300,6 +2433,64 @@ func CreateOrderGraphQL(input OrderInput) (*OrderResponse, error) {
 	}
 
 	return &response, nil
+}
+
+// UpdateVariantPriceAndCompareAt updates both price and compare_at_price of a variant using REST API
+// This allows orderCreate to display strikethrough prices:
+// - compare_at_price = original price (will show strikethrough)
+// - price = discounted price (will show as current price)
+// IMPORTANT: Don't set priceSet in orderCreate, let Shopify use variant prices
+func UpdateVariantPriceAndCompareAt(variantID string, price string, compareAtPrice string) error {
+	shopDomain := os.Getenv("SHOPIFY_SHOP_DOMAIN")
+	accessToken := os.Getenv("SHOPIFY_API_SECRET")
+
+	if shopDomain == "" || accessToken == "" {
+		return fmt.Errorf("SHOPIFY_SHOP_DOMAIN and SHOPIFY_API_SECRET must be set")
+	}
+
+	// Extract variant number from GID (e.g., "gid://shopify/ProductVariant/48360774271216" -> "48360774271216")
+	variantNum := strings.TrimPrefix(variantID, "gid://shopify/ProductVariant/")
+
+	apiVersion := "2025-10"
+	url := fmt.Sprintf("https://%s/admin/api/%s/variants/%s.json", shopDomain, apiVersion, variantNum)
+
+	payload := map[string]interface{}{
+		"variant": map[string]interface{}{
+			"id":              variantNum,
+			"price":           price,           // Discounted price (current price)
+			"compare_at_price": compareAtPrice, // Original price (will show strikethrough)
+		},
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Shopify-Access-Token", accessToken)
+
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to execute request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	return nil
 }
 
 // ExampleCreateOrderFromDraft demonstrates how to use the CreateOrderFromDraft function
@@ -2534,27 +2725,7 @@ func CreateDraftOrderREST(input OrderInput) (map[string]string, error) {
 			lineItem["title"] = item.Title
 		}
 
-		// Add discount using applied_discount (REST API format)
-		if len(item.DiscountAllocations) > 0 {
-			discount := item.DiscountAllocations[0]
-			appliedDiscount := map[string]interface{}{
-				"amount": discount.Amount,
-			}
-			if discount.Title != "" {
-				appliedDiscount["title"] = discount.Title
-			}
-			// Try to determine if it's percentage or fixed
-			if item.Price != "" {
-				price, _ := strconv.ParseFloat(item.Price, 64)
-				amount, _ := strconv.ParseFloat(discount.Amount, 64)
-				if price > 0 {
-					percentage := (amount / price) * 100
-					appliedDiscount["value_type"] = "percentage"
-					appliedDiscount["value"] = fmt.Sprintf("%.2f", percentage)
-				}
-			}
-			lineItem["applied_discount"] = appliedDiscount
-		}
+		// Discount allocations removed (orderCreate line items don't support them)
 
 		// Try adding tax_lines to line item (may not work, but worth trying)
 		// Note: According to Shopify docs, tax is auto-calculated, but we'll try anyway
@@ -2830,4 +3001,273 @@ func CreateDraftOrderREST(input OrderInput) (map[string]string, error) {
 	}
 
 	return result, nil
+}
+
+// OrderEditBeginResponse represents the response from orderEditBegin mutation
+type OrderEditBeginResponse struct {
+	CalculatedOrderID string
+	LineItems         []CalculatedLineItem
+}
+
+// CalculatedLineItem represents a line item in a calculated order edit
+type CalculatedLineItem struct {
+	ID                   string
+	Title                string
+	Quantity             int
+	DiscountedUnitPrice  string
+	OriginalUnitPrice    string
+}
+
+// OrderEditBegin starts an order edit session
+// Returns the calculated order ID and line items that can be edited
+func OrderEditBegin(orderID string) (*OrderEditBeginResponse, error) {
+	const mutation = `
+		mutation OrderEditBegin($id: ID!) {
+			orderEditBegin(id: $id) {
+				calculatedOrder {
+					id
+					lineItems(first: 50) {
+						edges {
+							node {
+								id
+								title
+								quantity
+								discountedUnitPriceSet {
+									shopMoney {
+										amount
+										currencyCode
+									}
+								}
+							}
+						}
+					}
+				}
+				userErrors {
+					field
+					message
+				}
+			}
+		}`
+
+	variables := map[string]interface{}{
+		"id": orderID,
+	}
+
+	resp, err := callAdminGraphQL(mutation, variables)
+	if err != nil {
+		return nil, fmt.Errorf("failed to begin order edit: %w", err)
+	}
+
+	// Parse response
+	data, ok := resp["data"].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("unexpected response format")
+	}
+
+	orderEditBegin, ok := data["orderEditBegin"].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("missing orderEditBegin in response")
+	}
+
+	// Check for user errors
+	if userErrors, ok := orderEditBegin["userErrors"].([]interface{}); ok && len(userErrors) > 0 {
+		return nil, fmt.Errorf("user errors: %v", userErrors)
+	}
+
+	calculatedOrder, ok := orderEditBegin["calculatedOrder"].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("missing calculatedOrder in response")
+	}
+
+	result := &OrderEditBeginResponse{
+		CalculatedOrderID: calculatedOrder["id"].(string),
+	}
+
+	// Parse line items
+	if lineItems, ok := calculatedOrder["lineItems"].(map[string]interface{}); ok {
+		if edges, ok := lineItems["edges"].([]interface{}); ok {
+			for _, edge := range edges {
+				edgeMap := edge.(map[string]interface{})
+				node := edgeMap["node"].(map[string]interface{})
+				
+				lineItem := CalculatedLineItem{
+					ID:       node["id"].(string),
+					Title:    node["title"].(string),
+					Quantity: int(node["quantity"].(float64)),
+				}
+				
+				if priceSet, ok := node["discountedUnitPriceSet"].(map[string]interface{}); ok {
+					if shopMoney, ok := priceSet["shopMoney"].(map[string]interface{}); ok {
+						lineItem.DiscountedUnitPrice = shopMoney["amount"].(string)
+					}
+				}
+				
+				result.LineItems = append(result.LineItems, lineItem)
+			}
+		}
+	}
+
+	return result, nil
+}
+
+// OrderEditAddLineItemDiscountInput represents input for adding discount to a line item
+type OrderEditAddLineItemDiscountInput struct {
+	CalculatedOrderID string
+	LineItemID        string
+	DiscountTitle     string
+	PercentValue      float64  // Use for percentage discount (0-100)
+	FixedValue        float64  // Use for fixed amount discount
+	IsPercentage      bool     // true = percentage, false = fixed amount
+}
+
+// OrderEditAddLineItemDiscount adds a discount to a line item in an order edit session
+// This will show the original price with strikethrough in Shopify Admin!
+func OrderEditAddLineItemDiscount(input OrderEditAddLineItemDiscountInput) error {
+	var mutation string
+	var variables map[string]interface{}
+
+	if input.IsPercentage {
+		mutation = `
+			mutation OrderEditAddLineItemDiscount($id: ID!, $lineItemId: ID!, $discount: OrderEditAppliedDiscountInput!) {
+				orderEditAddLineItemDiscount(id: $id, lineItemId: $lineItemId, discount: $discount) {
+					calculatedOrder {
+						id
+					}
+					calculatedLineItem {
+						id
+						discountedUnitPriceSet {
+							shopMoney {
+								amount
+							}
+						}
+					}
+					userErrors {
+						field
+						message
+					}
+				}
+			}`
+		
+		variables = map[string]interface{}{
+			"id":         input.CalculatedOrderID,
+			"lineItemId": input.LineItemID,
+			"discount": map[string]interface{}{
+				"description":  input.DiscountTitle,
+				"percentValue": input.PercentValue,
+			},
+		}
+	} else {
+		mutation = `
+			mutation OrderEditAddLineItemDiscount($id: ID!, $lineItemId: ID!, $discount: OrderEditAppliedDiscountInput!) {
+				orderEditAddLineItemDiscount(id: $id, lineItemId: $lineItemId, discount: $discount) {
+					calculatedOrder {
+						id
+					}
+					calculatedLineItem {
+						id
+						discountedUnitPriceSet {
+							shopMoney {
+								amount
+							}
+						}
+					}
+					userErrors {
+						field
+						message
+					}
+				}
+			}`
+		
+		variables = map[string]interface{}{
+			"id":         input.CalculatedOrderID,
+			"lineItemId": input.LineItemID,
+			"discount": map[string]interface{}{
+				"description": input.DiscountTitle,
+				"fixedValue":  input.FixedValue,
+			},
+		}
+	}
+
+	resp, err := callAdminGraphQL(mutation, variables)
+	if err != nil {
+		return fmt.Errorf("failed to add line item discount: %w", err)
+	}
+
+	// Parse response
+	data, ok := resp["data"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("unexpected response format")
+	}
+
+	orderEditResult, ok := data["orderEditAddLineItemDiscount"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("missing orderEditAddLineItemDiscount in response")
+	}
+
+	// Check for user errors
+	if userErrors, ok := orderEditResult["userErrors"].([]interface{}); ok && len(userErrors) > 0 {
+		return fmt.Errorf("user errors: %v", userErrors)
+	}
+
+	// Log the discounted price
+	if calculatedLineItem, ok := orderEditResult["calculatedLineItem"].(map[string]interface{}); ok {
+		if priceSet, ok := calculatedLineItem["discountedUnitPriceSet"].(map[string]interface{}); ok {
+			if shopMoney, ok := priceSet["shopMoney"].(map[string]interface{}); ok {
+				fmt.Printf("  → Line item discounted price: $%s\n", shopMoney["amount"])
+			}
+		}
+	}
+
+	return nil
+}
+
+// OrderEditCommit commits the order edit changes
+// This finalizes all discounts added and they will show with strikethrough in Shopify Admin
+func OrderEditCommit(calculatedOrderID string, notifyCustomer bool) error {
+	const mutation = `
+		mutation OrderEditCommit($id: ID!, $notifyCustomer: Boolean!) {
+			orderEditCommit(id: $id, notifyCustomer: $notifyCustomer) {
+				order {
+					id
+					name
+				}
+				userErrors {
+					field
+					message
+				}
+			}
+		}`
+
+	variables := map[string]interface{}{
+		"id":             calculatedOrderID,
+		"notifyCustomer": notifyCustomer,
+	}
+
+	resp, err := callAdminGraphQL(mutation, variables)
+	if err != nil {
+		return fmt.Errorf("failed to commit order edit: %w", err)
+	}
+
+	// Parse response
+	data, ok := resp["data"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("unexpected response format")
+	}
+
+	orderEditCommit, ok := data["orderEditCommit"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("missing orderEditCommit in response")
+	}
+
+	// Check for user errors
+	if userErrors, ok := orderEditCommit["userErrors"].([]interface{}); ok && len(userErrors) > 0 {
+		return fmt.Errorf("user errors: %v", userErrors)
+	}
+
+	// Log success
+	if order, ok := orderEditCommit["order"].(map[string]interface{}); ok {
+		fmt.Printf("  → Order edit committed: %s\n", order["name"])
+	}
+
+	return nil
 }
