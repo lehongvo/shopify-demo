@@ -1,219 +1,592 @@
 {
-    "id": "6639829975280",
-    "number": "1023",
-    "orderNumber": "2023",
-    "name": "#2023",
-    "customer": {
-        "id": "8871862665456",
-        "firstName": "Guest",
-        "lastName": "Customer",
-        "email": "guest@connectpos.com",
-        "status": "enabled",
-        "createdAt": "2025-12-10T07:06:00Z",
-        "updatedAt": "2025-12-29T03:55:54Z",
-        "uuid": "8871862665456"
-    },
-    "billingAddress": {
-        "name": "Guest Customer",
-        "firstName": "Guest",
-        "lastName": "Customer",
-        "phone": "555-5555",
-        "address1": "123 Main St",
-        "city": "Toronto",
-        "country": "United States",
-        "countryCode": "US",
-        "province": "Washington",
-        "provinceCode": "WA",
-        "zip": "A1A 1A1"
-    },
-    "shippingAddress": {
-        "name": "Guest Customer",
-        "firstName": "Guest",
-        "lastName": "Customer",
-        "phone": "555-5555",
-        "address1": "123 Main St",
-        "city": "Toronto",
-        "country": "United States",
-        "countryCode": "US",
-        "province": "Washington",
-        "provinceCode": "WA",
-        "zip": "A1A 1A1"
-    },
-    "items": [
-        {
-            "id": "15920235610352",
-            "productId": "48360774828272",
-            "productParentId": "9755435630832",
-            "name": "The Archived Snowboard",
-            "quantity": 1,
-            "price": "629.95000000000005",
-            "priceIncTax": "629.95000000000005",
-            "priceExTax": "591.50234741784038",
-            "totalDiscount": "0",
-            "tax": "38.44",
-            "totalTax": "38.44",
-            "totalPrice": "629.95000000000005",
-            "type": "simple",
-            "fulfillableQuantity": 1,
-            "requiresShipping": true,
-            "allowShipping": true,
-            "imageUrl": "https://cdn.shopify.com/s/files/1/0806/0364/4144/files/Main_52f8e304-92d9-4a36-82af-50df8fe31c69.jpg?v=1764575353",
-            "locationId": "89278578928",
-            "taxLines": [
-                {
-                    "price": "38.44",
-                    "rate": "0.065",
-                    "title": "State Tax"
-                }
-            ],
-            "attributes": {
-                "attributes-collections": "{\"id\":\"9755435630832_469853536496\",\"catalogId\":\"469853536496\",\"productId\":\"9755435630832\",\"uuid\":\"9755435630832_469853536496\",\"catalogUuid\":\"469853536496\"}",
-                "attributes-product_type": "snowboard"
-            },
-            "tags": "Archived,Premium,Snow,Snowboard,Sport,Winter",
-            "externalMerchantId": "c9a1d465-a1a0-48a7-a610-1847328013c4",
-            "externalStoreId": "94abad79-b93c-4a68-a40a-3a0fe1c4f107",
-            "itemStatus": "ordered"
-        },
-        {
-            "id": "15920235643120",
-            "productId": "48360774566128",
-            "productParentId": "9755435761904",
-            "name": "Selling Plans Ski Wax - Sample Selling Plans Ski Wax",
-            "quantity": 1,
-            "price": "9.95000000000000",
-            "priceIncTax": "9.95000000000000",
-            "priceExTax": "9.34272300469483",
-            "totalDiscount": "0",
-            "tax": "0.61",
-            "totalTax": "0.61",
-            "totalPrice": "9.95",
-            "type": "configurable",
-            "fulfillableQuantity": 1,
-            "requiresShipping": true,
-            "allowShipping": true,
-            "options": [
-                {
-                    "id": "15920235643120",
-                    "name": "Sample Selling Plans Ski Wax",
-                    "label": "Option",
-                    "value": "Sample Selling Plans Ski Wax"
-                }
-            ],
-            "locationId": "89278578928",
-            "taxLines": [
-                {
-                    "price": "0.61",
-                    "rate": "0.065",
-                    "title": "State Tax"
-                }
-            ],
-            "tags": "Accessory,Sport,Winter",
-            "externalMerchantId": "c9a1d465-a1a0-48a7-a610-1847328013c4",
-            "externalStoreId": "94abad79-b93c-4a68-a40a-3a0fe1c4f107"
-        }
-    ],
-    "currency": "USD",
-    "email": "guest@connectpos.com",
-    "subtotalPrice": "639.9",
-    "subtotalIncTax": "639.90000000000005",
-    "subtotalExTax": "600.84507042253521",
-    "totalTax": "39.05",
-    "totalDiscounts": "0",
-    "totalPrice": "639.9",
-    "status": "paid",
-    "fulfillmentStatus": "fulfilled",
-    "locationId": "0",
-    "noteAttributes": [
-        {
-            "name": "Cashier",
-            "value": "ConnectPOS Tech (cposmsidevelopment)"
-        },
-        {
-            "name": "Payment: Cash/USD (2025-12-29T04:00:14Z)",
-            "value": "639.9"
-        },
-        {
-            "name": "Outlet Name",
-            "value": "My Custom Location"
-        },
-        {
-            "name": "outlet_address",
-            "value": "123 Main St /Toronto/A1A 1A1/US"
-        }
-    ],
-    "payments": [
-        {
-            "paymentCode": "cash",
-            "paymentName": "Cash",
-            "amount": "639.90",
-            "type": "sale",
-            "processedAt": "2025-12-29T04:00:11.577Z",
-            "paymentDetails": {
-                "app_version": "25.12.17",
-                "base_currency": "USD",
-                "configs": "",
-                "device_info": "",
-                "isConvertFromSC": "false",
-                "presentment_currency": "USD",
-                "presentment_exchange_rate": "1",
-                "store_credit_provider": ""
-            },
-            "currency": "USD",
-            "presentmentCurrency": "USD",
-            "currencyExchangeRate": "1",
-            "presentmentCurrencySymbol": "$",
-            "hashId": "a8f7d9a9-83b5-4bec-8dfe-a396bf6b7320"
-        }
-    ],
-    "taxesIncluded": true,
-    "shippingMethod": "From Store",
+    "storeId": "11422",
     "shiftId": "290264",
-    "cashier": "cposmsidevelopment",
-    "cashierName": "ConnectPOS Tech",
-    "refundedTotalPrice": "0",
-    "refundedShippingPrice": "0",
-    "source": "in_store",
-    "refundedAdjustmentPrice": "0",
-    "taxLines": [
-        {
-            "price": "39.05",
-            "rate": "0.065",
-            "title": "State Tax"
-        }
-    ],
-    "isAutoFulfillment": true,
-    "state": "confirmed",
-    "createdAt": "2025-12-29T04:00:15Z",
-    "updatedAt": "2025-12-29T04:00:17Z",
-    "tags": "cashier:cposmsidevelopment, ConnectPOS, eid:428bc3bb-d5d1-49d1-b6f6-0ec85db005e1, in_store",
-    "checkHashId": "428bc3bb-d5d1-49d1-b6f6-0ec85db005e1",
-    "outletId": "11637",
     "registerId": "17828",
-    "commissionItems": [
-        {
-            "productId": "48360774828272",
-            "parentId": "9755435630832",
-            "quantity": 1,
-            "productName": "The Archived Snowboard"
-        },
-        {
-            "productId": "48360774566128",
-            "parentId": "9755435761904",
-            "quantity": 1,
-            "productName": "Selling Plans Ski Wax - Sample Selling Plans Ski Wax"
-        }
-    ],
-    "orderStatusUrl": "https://connectpos-dev-store.myshopify.com/80603644144/orders/a5179b30459863c7ab45e8b738be86fe/authenticate?key=467f996f1724bda9082c7c25ef71fc83",
-    "fulfilledAt": "2025-12-29T04:00:17.991361289Z",
-    "currencyExchangeRate": "1",
-    "orderUrl": "https://connectpos-dev-store.myshopify.com/80603644144/orders/a5179b30459863c7ab45e8b738be86fe/authenticate?key=467f996f1724bda9082c7c25ef71fc83",
+    "outletId": "11637",
     "outletName": "My Custom Location",
     "registerName": "Left",
-    "additionalData": {
-        "app_version": "25.12.17",
-        "device_info": ""
+    "notifyCustomer": false,
+    "order": {
+        "createdAt": null,
+        "cartId": null,
+        "country": "US",
+        "outletName": "My Custom Location",
+        "registerName": "Left",
+        "registerId": "17828",
+        "outletId": "11637",
+        "locationId": "89278578928",
+        "fulfillmentLocationIds": "89278611696",
+        "payments": [
+            {
+                "paymentCode": "cash",
+                "paymentName": "Cash",
+                "amount": "200.00",
+                "amountBeforRound": "200.000000000000",
+                "isChanging": true,
+                "processedAt": "2025-12-31T04:23:55.868Z",
+                "type": "sale",
+                "paymentDetails": {
+                    "isConvertFromSC": "false",
+                    "store_credit_provider": "",
+                    "base_currency": "USD",
+                    "presentment_currency": "USD",
+                    "presentment_exchange_rate": "1",
+                    "app_version": "25.12.17",
+                    "device_info": "",
+                    "configs": ""
+                },
+                "currency": "USD",
+                "presentmentCurrency": "USD",
+                "currencyExchangeRate": "1",
+                "presentmentCurrencySymbol": "$",
+                "hashId": "0b49410d-177e-4a24-ae05-0edd971e73e1"
+            },
+            {
+                "id": "13131",
+                "paymentCode": "credit",
+                "paymentName": "Credit",
+                "amount": "300.00",
+                "amountBeforRound": "300.000000000000",
+                "isChanging": true,
+                "processedAt": "2025-12-31T04:24:00.306Z",
+                "type": "sale",
+                "paymentDetails": {
+                    "isConvertFromSC": "false",
+                    "store_credit_provider": "",
+                    "base_currency": "USD",
+                    "presentment_currency": "USD",
+                    "presentment_exchange_rate": "1",
+                    "app_version": "25.12.17",
+                    "device_info": "",
+                    "configs": ""
+                },
+                "currency": "USD",
+                "presentmentCurrency": "USD",
+                "currencyExchangeRate": "1",
+                "presentmentCurrencySymbol": "$",
+                "hashId": "069c310e-2ab9-480f-9559-9e4a0f6ad576"
+            },
+            {
+                "id": "13130",
+                "paymentCode": "dummy_1",
+                "paymentName": "Dummy 1",
+                "amount": "349.98",
+                "amountBeforRound": "349.980000000000",
+                "isChanging": true,
+                "processedAt": "2025-12-31T04:24:03.097Z",
+                "type": "sale",
+                "paymentDetails": {
+                    "isConvertFromSC": "false",
+                    "store_credit_provider": "",
+                    "base_currency": "USD",
+                    "presentment_currency": "USD",
+                    "presentment_exchange_rate": "1",
+                    "app_version": "25.12.17",
+                    "device_info": "",
+                    "configs": ""
+                },
+                "currency": "USD",
+                "presentmentCurrency": "USD",
+                "currencyExchangeRate": "1",
+                "presentmentCurrencySymbol": "$",
+                "hashId": "577b2822-94a8-4ef0-8278-0c28f0720d63"
+            },
+            {
+                "id": "0",
+                "paymentCode": "cash",
+                "paymentName": "Cash",
+                "amount": "150.03",
+                "amountBeforRound": "150.030000000000",
+                "processedAt": "2025-12-31T04:24:03.097Z",
+                "type": "change",
+                "paymentDetails": {
+                    "store_credit_provider": "",
+                    "base_currency": "USD",
+                    "presentment_currency": "USD",
+                    "presentment_exchange_rate": "1",
+                    "app_version": "25.12.17",
+                    "device_info": "",
+                    "configs": ""
+                },
+                "currency": "USD",
+                "presentmentCurrency": "USD",
+                "currencyExchangeRate": "1",
+                "presentmentCurrencySymbol": "$",
+                "hashId": "b1732135-18d9-453b-b49c-a4ba7b70d9fa"
+            }
+        ],
+        "initialPayments": [
+            {
+                "paymentCode": "cash",
+                "paymentName": "Cash",
+                "amount": "200.00",
+                "amountBeforRound": "200.000000000000",
+                "isChanging": true,
+                "processedAt": "2025-12-31T04:23:55.868Z",
+                "type": "sale",
+                "paymentDetails": {
+                    "isConvertFromSC": "false",
+                    "store_credit_provider": "",
+                    "base_currency": "USD",
+                    "presentment_currency": "USD",
+                    "presentment_exchange_rate": "1",
+                    "app_version": "25.12.17",
+                    "device_info": "",
+                    "configs": ""
+                },
+                "currency": "USD",
+                "presentmentCurrency": "USD",
+                "currencyExchangeRate": "1",
+                "presentmentCurrencySymbol": "$",
+                "hashId": "0b49410d-177e-4a24-ae05-0edd971e73e1"
+            },
+            {
+                "id": "13131",
+                "paymentCode": "credit",
+                "paymentName": "Credit",
+                "amount": "300.00",
+                "amountBeforRound": "300.000000000000",
+                "isChanging": true,
+                "processedAt": "2025-12-31T04:24:00.306Z",
+                "type": "sale",
+                "paymentDetails": {
+                    "isConvertFromSC": "false",
+                    "store_credit_provider": "",
+                    "base_currency": "USD",
+                    "presentment_currency": "USD",
+                    "presentment_exchange_rate": "1",
+                    "app_version": "25.12.17",
+                    "device_info": "",
+                    "configs": ""
+                },
+                "currency": "USD",
+                "presentmentCurrency": "USD",
+                "currencyExchangeRate": "1",
+                "presentmentCurrencySymbol": "$",
+                "hashId": "069c310e-2ab9-480f-9559-9e4a0f6ad576"
+            },
+            {
+                "id": "13130",
+                "paymentCode": "dummy_1",
+                "paymentName": "Dummy 1",
+                "amount": "349.98",
+                "amountBeforRound": "349.980000000000",
+                "isChanging": true,
+                "processedAt": "2025-12-31T04:24:03.097Z",
+                "type": "sale",
+                "paymentDetails": {
+                    "isConvertFromSC": "false",
+                    "store_credit_provider": "",
+                    "base_currency": "USD",
+                    "presentment_currency": "USD",
+                    "presentment_exchange_rate": "1",
+                    "app_version": "25.12.17",
+                    "device_info": "",
+                    "configs": ""
+                },
+                "currency": "USD",
+                "presentmentCurrency": "USD",
+                "currencyExchangeRate": "1",
+                "presentmentCurrencySymbol": "$",
+                "hashId": "577b2822-94a8-4ef0-8278-0c28f0720d63"
+            },
+            {
+                "id": "0",
+                "paymentCode": "cash",
+                "paymentName": "Cash",
+                "amount": "150.03",
+                "amountBeforRound": "150.030000000000",
+                "processedAt": "2025-12-31T04:24:03.097Z",
+                "type": "change",
+                "paymentDetails": {
+                    "store_credit_provider": "",
+                    "base_currency": "USD",
+                    "presentment_currency": "USD",
+                    "presentment_exchange_rate": "1",
+                    "app_version": "25.12.17",
+                    "device_info": "",
+                    "configs": ""
+                },
+                "currency": "USD",
+                "presentmentCurrency": "USD",
+                "currencyExchangeRate": "1",
+                "presentmentCurrencySymbol": "$",
+                "hashId": "b1732135-18d9-453b-b49c-a4ba7b70d9fa"
+            }
+        ],
+        "items": [
+            {
+                "uuid": "9755435663600",
+                "productId": "48360774729968",
+                "productParentId": "9755435663600",
+                "name": "The Complete Snowboard - Electric",
+                "quantity": 1,
+                "totalDiscount": "0.00000000000000",
+                "totalPrice": "657.23004694835686",
+                "totalPriceInReport": "699.95000000000005",
+                "inventoryIds": "50462514282736",
+                "options": [
+                    {
+                        "code": "color",
+                        "label": "Color",
+                        "items": [
+                            {
+                                "id": "12598266331376",
+                                "label": "Dawn",
+                                "productIds": [
+                                    "48360774664432"
+                                ],
+                                "productSkus": [
+                                    ""
+                                ],
+                                "value": "Dawn"
+                            },
+                            {
+                                "id": "12598266331376",
+                                "label": "Electric",
+                                "productIds": [
+                                    "48360774729968"
+                                ],
+                                "productSkus": [
+                                    ""
+                                ],
+                                "value": "Electric"
+                            },
+                            {
+                                "id": "12598266331376",
+                                "label": "Ice",
+                                "productIds": [
+                                    "48360774631664"
+                                ],
+                                "productSkus": [
+                                    ""
+                                ],
+                                "value": "Ice"
+                            },
+                            {
+                                "id": "12598266331376",
+                                "label": "Powder",
+                                "productIds": [
+                                    "48360774697200"
+                                ],
+                                "productSkus": [
+                                    ""
+                                ],
+                                "value": "Powder"
+                            },
+                            {
+                                "id": "12598266331376",
+                                "label": "Sunset",
+                                "productIds": [
+                                    "48360774762736"
+                                ],
+                                "productSkus": [
+                                    ""
+                                ],
+                                "value": "Sunset"
+                            }
+                        ],
+                        "price": "0.00000000000000",
+                        "priceIncTax": "0.00000000000000",
+                        "priceExTax": "0.00000000000000",
+                        "totalTax": "0.00000000000000",
+                        "quantity": 1,
+                        "originQuantityItem": 1,
+                        "value": "Electric",
+                        "productIds": [
+                            "48360774729968"
+                        ]
+                    }
+                ],
+                "requiresShipping": true,
+                "isSplitItem": false,
+                "isVerifiedQty": false,
+                "locationId": "89278578928",
+                "priceIncQty": "699.95",
+                "tax": "0",
+                "totalTax": "42.71995305164319",
+                "priceExTax": "657.23004694835686",
+                "tags": "Premium,Snow,Snowboard,Sport,Winter",
+                "price": "699.95000000000005",
+                "imageUrl": "https://cdn.shopify.com/s/files/1/0806/0364/4144/files/Main_589fc064-24a2-4236-9eaf-13b2bd35d21d.jpg?v=1764575352",
+                "type": "configurable",
+                "taxable": true,
+                "productUuid": "48360774729968",
+                "priceIncTax": "699.95000000000005",
+                "isBOGOProduct": false,
+                "originPrice": "699.95",
+                "productParentUuid": "9755435663600",
+                "productName": "The Complete Snowboard - Electric",
+                "subtotalPrice": "657.23",
+                "percentageCommissionTotal": 0,
+                "splitTotal": 0,
+                "parentId": "9755435663600",
+                "isDisableRefund": false,
+                "isVariant": false,
+                "originProductName": "The Complete Snowboard",
+                "attributes": {
+                    "collections": "{\"id\":\"9755435663600_469853536496\",\"catalogId\":\"469853536496\",\"productId\":\"9755435663600\",\"uuid\":\"9755435663600_469853536496\",\"catalogUuid\":\"469853536496\"}",
+                    "parent_name": "The Complete Snowboard"
+                },
+                "taxesIncluded": true,
+                "isInStock": false,
+                "externalMerchantId": "c9a1d465-a1a0-48a7-a610-1847328013c4",
+                "externalStoreId": "94abad79-b93c-4a68-a40a-3a0fe1c4f107",
+                "fulfillmentLocationIds": "89278611696",
+                "collections": [
+                    {
+                        "id": "9755435663600_469853536496",
+                        "catalogId": "469853536496",
+                        "productId": "9755435663600",
+                        "uuid": "9755435663600_469853536496",
+                        "catalogUuid": "469853536496"
+                    }
+                ],
+                "isFreeItem": false,
+                "isBuilder": false,
+                "imageCacheKey": "e6a38e0c-a5e6-4831-ada4-28cb9ff7bc8e",
+                "isRedeem": false,
+                "requireTaxId": false,
+                "vendor": "Snowboard Vendor"
+            }
+        ],
+        "fulfillmentItems": [],
+        "refundItems": [],
+        "totalPrice": "699.95",
+        "totalPaid": "1000.01",
+        "discountApplications": [],
+        "discountCodes": [],
+        "discountGiftCards": [],
+        "source": "in_store",
+        "isAutoFulfillment": true,
+        "email": "guest@connectpos.com",
+        "phone": "",
+        "customer": {
+            "firstName": "Guest",
+            "lastName": "Customer",
+            "email": "guest@connectpos.com"
+        },
+        "shippingAddress": {
+            "firstName": "Guest",
+            "lastName": "Customer",
+            "street": "123 Main St ",
+            "address1": "123 Main St ",
+            "city": "Toronto",
+            "country": "US",
+            "countryCode": "US",
+            "countryName": "US",
+            "province": "Washington",
+            "provinceId": "WA",
+            "provinceCode": "WA",
+            "zip": "A1A 1A1",
+            "phone": "555-5555",
+            "isOutletAddress": true
+        },
+        "billingAddress": null,
+        "totalDiscounts": "0.00",
+        "totalTax": "42.72",
+        "subtotalPrice": "699.95",
+        "fulfillmentStatus": "fulfilled",
+        "shippingMethod": null,
+        "totalShipping": null,
+        "totalShippingIncTax": null,
+        "totalShippingExTax": null,
+        "totalTaxShipping": null,
+        "isExchange": false,
+        "parentOrderId": "",
+        "status": "paid",
+        "isProcessingPayment": false,
+        "note": "",
+        "taxLines": [
+            {
+                "id": "897954513136-10721772142832",
+                "rate": "0.065",
+                "price": "42.72",
+                "title": "Washington",
+                "taxClassId": "897954513136-10721772142832",
+                "code": "US",
+                "isUsed": true,
+                "applyAfterDiscount": true
+            }
+        ],
+        "hashId": "a722a889-d99e-4355-be0e-20d36dd44171",
+        "subtotalIncTax": "699.95",
+        "subtotalExTax": "657.23",
+        "remain": "-150.030",
+        "requestBy": "",
+        "requestByName": "",
+        "salesman": "",
+        "salesmanName": "",
+        "taxesIncluded": true,
+        "cashier": "cposmsidevelopment",
+        "cashierName": "ConnectPOS Tech",
+        "currencyExchangeRate": "1",
+        "presentmentCurrency": null,
+        "currency": "USD",
+        "staffNote": "",
+        "commissionItems": [
+            {
+                "uuid": "9755435663600",
+                "productId": "48360774729968",
+                "productParentId": "9755435663600",
+                "name": "The Complete Snowboard - Electric",
+                "quantity": 1,
+                "totalDiscount": "0.00000000000000",
+                "totalPrice": "657.23004694835686",
+                "totalPriceInReport": "699.95000000000005",
+                "inventoryIds": "50462514282736",
+                "options": [
+                    {
+                        "code": "color",
+                        "label": "Color",
+                        "items": [
+                            {
+                                "id": "12598266331376",
+                                "label": "Dawn",
+                                "productIds": [
+                                    "48360774664432"
+                                ],
+                                "productSkus": [
+                                    ""
+                                ],
+                                "value": "Dawn"
+                            },
+                            {
+                                "id": "12598266331376",
+                                "label": "Electric",
+                                "productIds": [
+                                    "48360774729968"
+                                ],
+                                "productSkus": [
+                                    ""
+                                ],
+                                "value": "Electric"
+                            },
+                            {
+                                "id": "12598266331376",
+                                "label": "Ice",
+                                "productIds": [
+                                    "48360774631664"
+                                ],
+                                "productSkus": [
+                                    ""
+                                ],
+                                "value": "Ice"
+                            },
+                            {
+                                "id": "12598266331376",
+                                "label": "Powder",
+                                "productIds": [
+                                    "48360774697200"
+                                ],
+                                "productSkus": [
+                                    ""
+                                ],
+                                "value": "Powder"
+                            },
+                            {
+                                "id": "12598266331376",
+                                "label": "Sunset",
+                                "productIds": [
+                                    "48360774762736"
+                                ],
+                                "productSkus": [
+                                    ""
+                                ],
+                                "value": "Sunset"
+                            }
+                        ],
+                        "price": "0.00000000000000",
+                        "priceIncTax": "0.00000000000000",
+                        "priceExTax": "0.00000000000000",
+                        "totalTax": "0.00000000000000",
+                        "quantity": 1,
+                        "originQuantityItem": 1,
+                        "value": "Electric",
+                        "productIds": [
+                            "48360774729968"
+                        ]
+                    }
+                ],
+                "requiresShipping": true,
+                "isSplitItem": false,
+                "isVerifiedQty": false,
+                "locationId": "89278578928",
+                "priceIncQty": "699.95",
+                "tax": "0",
+                "totalTax": "42.71995305164319",
+                "priceExTax": "657.23004694835686",
+                "tags": "Premium,Snow,Snowboard,Sport,Winter",
+                "price": "699.95000000000005",
+                "imageUrl": "https://cdn.shopify.com/s/files/1/0806/0364/4144/files/Main_589fc064-24a2-4236-9eaf-13b2bd35d21d.jpg?v=1764575352",
+                "type": "configurable",
+                "taxable": true,
+                "productUuid": "48360774729968",
+                "priceIncTax": "699.95000000000005",
+                "isBOGOProduct": false,
+                "originPrice": "699.95",
+                "productParentUuid": "9755435663600",
+                "productName": "The Complete Snowboard - Electric",
+                "subtotalPrice": "657.23",
+                "percentageCommissionTotal": 0,
+                "splitTotal": 0,
+                "parentId": "9755435663600",
+                "isDisableRefund": false,
+                "isVariant": false,
+                "originProductName": "The Complete Snowboard",
+                "attributes": {
+                    "collections": "{\"id\":\"9755435663600_469853536496\",\"catalogId\":\"469853536496\",\"productId\":\"9755435663600\",\"uuid\":\"9755435663600_469853536496\",\"catalogUuid\":\"469853536496\"}",
+                    "parent_name": "The Complete Snowboard"
+                },
+                "taxesIncluded": true,
+                "isInStock": false,
+                "externalMerchantId": "c9a1d465-a1a0-48a7-a610-1847328013c4",
+                "externalStoreId": "94abad79-b93c-4a68-a40a-3a0fe1c4f107",
+                "fulfillmentLocationIds": "89278611696",
+                "collections": [
+                    {
+                        "id": "9755435663600_469853536496",
+                        "catalogId": "469853536496",
+                        "productId": "9755435663600",
+                        "uuid": "9755435663600_469853536496",
+                        "catalogUuid": "469853536496"
+                    }
+                ],
+                "isFreeItem": false,
+                "isBuilder": false,
+                "imageCacheKey": "e6a38e0c-a5e6-4831-ada4-28cb9ff7bc8e",
+                "isRedeem": false,
+                "requireTaxId": false,
+                "vendor": "Snowboard Vendor"
+            }
+        ],
+        "locale": "",
+        "viewId": null,
+        "noteAttributes": null,
+        "tags": "",
+        "shippingCarrier": null,
+        "commissionSplits": [],
+        "paymentComplete": null,
+        "shippingMethodId": null,
+        "shippingMethodCarrierTitle": null,
+        "shippingMethodCarrierCode": null,
+        "shippingMethodTitle": null,
+        "customShippingData": null,
+        "splitOrders": null,
+        "additionalData": {
+            "app_version": "25.12.17",
+            "device_info": ""
+        },
+        "isEstimation": false,
+        "useRewardPoints": false,
+        "taxExempt": false,
+        "rewardPointsData": null,
+        "priceGroup": "",
+        "priceGroupId": "",
+        "totalPoint": "0",
+        "isFreeTax": false,
+        "serviceFees": [],
+        "surchargeFees": []
     },
-    "storeName": "connectpos-dev-store.myshopify.com",
-    "storeId": "11422"
+    "generatePOSNumber": false
 }
