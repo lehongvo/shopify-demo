@@ -1,0 +1,323 @@
+{
+  "storeId": "10030",
+  "shiftId": "53487",
+  "registerId": "12816",
+  "outletId": "9346",
+  "outletName": "Shopify Outlet DEV",
+  "registerName": "Left Register",
+  "notifyCustomer": false,
+  "order": {
+      "createdAt": null,
+      "cartId": null,
+      "country": "US",
+      "outletName": "Shopify Outlet DEV",
+      "registerName": "Left Register",
+      "registerId": "12816",
+      "outletId": "9346",
+      "locationId": "89278578928",
+      "fulfillmentLocationIds": "89278578928",
+      "payments": [
+          {
+              "paymentCode": "cash",
+              "paymentName": "Cash",
+              "amount": "699.95",
+              "amountBeforRound": "699.950000000000",
+              "isChanging": true,
+              "processedAt": "2026-01-21T03:45:29.311Z",
+              "type": "sale",
+              "paymentDetails": {
+                  "isConvertFromSC": "false",
+                  "store_credit_provider": "",
+                  "base_currency": "USD",
+                  "presentment_currency": "USD",
+                  "presentment_exchange_rate": "1",
+                  "app_version": "25.12.31",
+                  "device_info": "",
+                  "configs": ""
+              },
+              "currency": "USD",
+              "presentmentCurrency": "USD",
+              "currencyExchangeRate": "1",
+              "presentmentCurrencySymbol": "$",
+              "hashId": "f2d8bfa6-027f-4165-882c-9ee220e97873"
+          }
+      ],
+      "initialPayments": [
+          {
+              "paymentCode": "cash",
+              "paymentName": "Cash",
+              "amount": "699.95",
+              "amountBeforRound": "699.950000000000",
+              "isChanging": true,
+              "processedAt": "2026-01-21T03:45:29.311Z",
+              "type": "sale",
+              "paymentDetails": {
+                  "isConvertFromSC": "false",
+                  "store_credit_provider": "",
+                  "base_currency": "USD",
+                  "presentment_currency": "USD",
+                  "presentment_exchange_rate": "1",
+                  "app_version": "25.12.31",
+                  "device_info": "",
+                  "configs": ""
+              },
+              "currency": "USD",
+              "presentmentCurrency": "USD",
+              "currencyExchangeRate": "1",
+              "presentmentCurrencySymbol": "$",
+              "hashId": "f2d8bfa6-027f-4165-882c-9ee220e97873"
+          }
+      ],
+      "items": [
+          {
+              "uuid": "48360774762736",
+              "productId": "48360774762736",
+              "productParentId": "9755435663600",
+              "name": "The Complete Snowboard - Sunset",
+              "quantity": 1,
+              "totalDiscount": "0.00000000000000",
+              "totalPrice": "657.23004694835686",
+              "totalPriceInReport": "699.95000000000005",
+              "inventoryIds": "50462514315504",
+              "options": [
+                  {
+                      "label": "Color",
+                      "value": "Sunset"
+                  }
+              ],
+              "requiresShipping": true,
+              "isSplitItem": false,
+              "isVerifiedQty": false,
+              "locationId": "89278578928",
+              "priceIncQty": "699.95",
+              "tax": "0",
+              "totalTax": "42.71995305164319",
+              "priceExTax": "657.23004694835686",
+              "tags": "Premium,Snow,Snowboard,Sport,Winter",
+              "price": "699.95000000000005",
+              "imageUrl": "https://cdn.shopify.com/s/files/1/0806/0364/4144/files/Main_589fc064-24a2-4236-9eaf-13b2bd35d21d.jpg?v=1764575352",
+              "type": "simple",
+              "taxable": true,
+              "productUuid": "48360774762736",
+              "priceIncTax": "699.95000000000005",
+              "isBOGOProduct": false,
+              "originPrice": "699.95",
+              "productParentUuid": "9755435663600",
+              "productName": "The Complete Snowboard - Sunset",
+              "subtotalPrice": "657.23",
+              "percentageCommissionTotal": 0,
+              "splitTotal": 0,
+              "parentId": "9755435663600",
+              "isDisableRefund": false,
+              "isVariant": true,
+              "originProductName": "The Complete Snowboard - Sunset",
+              "productOptions": [
+                  {
+                      "label": "Color",
+                      "value": "Sunset"
+                  }
+              ],
+              "attributes": {
+                  "collections": "{\"id\":\"9755435663600_469853536496\",\"catalogId\":\"469853536496\",\"productId\":\"9755435663600\",\"uuid\":\"9755435663600_469853536496\",\"catalogUuid\":\"469853536496\"}",
+                  "parent_name": "The Complete Snowboard"
+              },
+              "taxesIncluded": true,
+              "isInStock": false,
+              "fulfillmentLocationIds": "89278578928",
+              "collections": [
+                  {
+                      "id": "9755435663600_469853536496",
+                      "catalogId": "469853536496",
+                      "productId": "9755435663600",
+                      "uuid": "9755435663600_469853536496",
+                      "catalogUuid": "469853536496"
+                  }
+              ],
+              "isFreeItem": false,
+              "isBuilder": false,
+              "imageCacheKey": "bc42f57c-0885-4be2-b25c-6804cda2b14f",
+              "isRedeem": false,
+              "requireTaxId": false,
+              "vendor": "Snowboard Vendor"
+          }
+      ],
+      "fulfillmentItems": [],
+      "refundItems": [],
+      "totalPrice": "699.95",
+      "totalPaid": "699.95",
+      "discountApplications": [],
+      "discountCodes": [],
+      "discountGiftCards": [],
+      "source": "in_store",
+      "isAutoFulfillment": true,
+      "email": "guest@connectpos.com",
+      "phone": "",
+      "customer": {
+          "firstName": "ConnectPOS",
+          "email": "guest@connectpos.com"
+      },
+      "shippingAddress": {
+          "firstName": "ConnectPOS",
+          "street": "Suite 204, 105 S Main St",
+          "address1": "Suite 204, 105 S Main St",
+          "city": "Seattle",
+          "country": "US",
+          "countryCode": "US",
+          "countryName": "US",
+          "province": "Washington",
+          "provinceId": "WA",
+          "provinceCode": "WA",
+          "zip": "98104",
+          "phone": "+1999",
+          "isOutletAddress": true
+      },
+      "billingAddress": null,
+      "totalDiscounts": "0.00",
+      "totalTax": "42.72",
+      "subtotalPrice": "699.95",
+      "fulfillmentStatus": "fulfilled",
+      "shippingMethod": "VincentVo",
+      "totalShipping": "11.00",
+      "totalShippingIncTax": null,
+      "totalShippingExTax": null,
+      "totalTaxShipping": null,
+      "isExchange": false,
+      "parentOrderId": "",
+      "status": "paid",
+      "isProcessingPayment": false,
+      "note": "",
+      "taxLines": [
+          {
+              "id": "897954513136-10721772142832",
+              "rate": "0.065",
+              "price": "42.72",
+              "title": "Washington",
+              "taxClassId": "897954513136-10721772142832",
+              "code": "US",
+              "isUsed": true,
+              "applyAfterDiscount": true
+          }
+      ],
+      "hashId": "b1c7a897-098f-4a6d-a782-293a076b2c13",
+      "subtotalIncTax": "699.95",
+      "subtotalExTax": "657.23",
+      "remain": "0.000",
+      "requestBy": "",
+      "requestByName": "",
+      "salesman": "",
+      "salesmanName": "",
+      "taxesIncluded": true,
+      "cashier": "connectposdev",
+      "cashierName": "ConnectPOS Dev",
+      "currencyExchangeRate": "1",
+      "presentmentCurrency": null,
+      "currency": "USD",
+      "staffNote": "",
+      "commissionItems": [
+          {
+              "uuid": "48360774762736",
+              "productId": "48360774762736",
+              "productParentId": "9755435663600",
+              "name": "The Complete Snowboard - Sunset",
+              "quantity": 1,
+              "totalDiscount": "0.00000000000000",
+              "totalPrice": "657.23004694835686",
+              "totalPriceInReport": "699.95000000000005",
+              "inventoryIds": "50462514315504",
+              "options": [
+                  {
+                      "label": "Color",
+                      "value": "Sunset"
+                  }
+              ],
+              "requiresShipping": true,
+              "isSplitItem": false,
+              "isVerifiedQty": false,
+              "locationId": "89278578928",
+              "priceIncQty": "699.95",
+              "tax": "0",
+              "totalTax": "42.71995305164319",
+              "priceExTax": "657.23004694835686",
+              "tags": "Premium,Snow,Snowboard,Sport,Winter",
+              "price": "699.95000000000005",
+              "imageUrl": "https://cdn.shopify.com/s/files/1/0806/0364/4144/files/Main_589fc064-24a2-4236-9eaf-13b2bd35d21d.jpg?v=1764575352",
+              "type": "simple",
+              "taxable": true,
+              "productUuid": "48360774762736",
+              "priceIncTax": "699.95000000000005",
+              "isBOGOProduct": false,
+              "originPrice": "699.95",
+              "productParentUuid": "9755435663600",
+              "productName": "The Complete Snowboard - Sunset",
+              "subtotalPrice": "657.23",
+              "percentageCommissionTotal": 0,
+              "splitTotal": 0,
+              "parentId": "9755435663600",
+              "isDisableRefund": false,
+              "isVariant": true,
+              "originProductName": "The Complete Snowboard - Sunset",
+              "productOptions": [
+                  {
+                      "label": "Color",
+                      "value": "Sunset"
+                  }
+              ],
+              "attributes": {
+                  "collections": "{\"id\":\"9755435663600_469853536496\",\"catalogId\":\"469853536496\",\"productId\":\"9755435663600\",\"uuid\":\"9755435663600_469853536496\",\"catalogUuid\":\"469853536496\"}",
+                  "parent_name": "The Complete Snowboard"
+              },
+              "taxesIncluded": true,
+              "isInStock": false,
+              "fulfillmentLocationIds": "89278578928",
+              "collections": [
+                  {
+                      "id": "9755435663600_469853536496",
+                      "catalogId": "469853536496",
+                      "productId": "9755435663600",
+                      "uuid": "9755435663600_469853536496",
+                      "catalogUuid": "469853536496"
+                  }
+              ],
+              "isFreeItem": false,
+              "isBuilder": false,
+              "imageCacheKey": "bc42f57c-0885-4be2-b25c-6804cda2b14f",
+              "isRedeem": false,
+              "requireTaxId": false,
+              "vendor": "Snowboard Vendor"
+          }
+      ],
+      "locale": "",
+      "viewId": null,
+      "noteAttributes": [
+          {
+              "name": "Lead Time",
+              "value": "You can type lead time here"
+          }
+      ],
+      "tags": "",
+      "shippingCarrier": null,
+      "commissionSplits": [],
+      "paymentComplete": null,
+      "shippingMethodId": null,
+      "shippingMethodCarrierTitle": null,
+      "shippingMethodCarrierCode": null,
+      "shippingMethodTitle": "VincentVo",
+      "customShippingData": null,
+      "splitOrders": null,
+      "additionalData": {
+          "app_version": "25.12.31",
+          "device_info": ""
+      },
+      "isEstimation": false,
+      "useRewardPoints": false,
+      "taxExempt": false,
+      "rewardPointsData": null,
+      "priceGroup": "",
+      "priceGroupId": "",
+      "totalPoint": "0",
+      "isFreeTax": false,
+      "serviceFees": [],
+      "surchargeFees": []
+  },
+  "generatePOSNumber": false
+}
