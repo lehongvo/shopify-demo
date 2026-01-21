@@ -1,24 +1,11 @@
-curl --location 'https://api-order.dev.connectpos.com/v0/stores/10030/orders?filterFields=last_name%2Cemail%2Cfirst_name%2Ctelephone%2Ccustomer_id%2Corder_id%2Cprice%2Corder_number%2Cnumber&createdAtMin=2025-01-20T17%3A00%3A00.000Z&createdAtMax=2026-01-21T08%3A41%3A00.000Z&outletId=9346&showAllOrder=false&page=1&limit=20&sort=date_created%3Adesc&fromSearchEngine=true&search=' \
---header 'Accept: */*' \
---header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8,vi;q=0.7' \
---header 'Authorization: Bearer eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZzZHFNaU5ScW1xN1pxQ2FMIiwidXNlcl9pZCI6IjZzZHFNaU5ScW1xN1pxQ2FMIiwibGljZW5zZV9pZCI6IndMRXJwaFllRTY1TUd6UGdyIiwic2hvcF9yb2xlIjoiIiwicm9sZXMiOlsidXNlciJdLCJub3RfYWxsb3dfcGVybWlzc2lvbnMiOm51bGwsInByb2ZpbGUiOnsiZGl2aXNpb25Db2RlIjoiIiwidXNlckNvZGUiOiIifSwidXNlcm5hbWUiOiJjb25uZWN0cG9zZGV2IiwiZW1haWwiOiJjb25uZWN0cG9zLnRlY2grY3Bvc0BzbWFydG9zYy5jb20iLCJwaG9uZSI6IiIsImNvdW50cnkiOiIiLCJtYXhfcmVnaXN0ZXIiOjU1LCJpc19wbGF0Zm9ybV91c2VyIjpmYWxzZSwiZXhwaXJ5X2RhdGUiOiIyMDI2LTEyLTMwVDE3OjAwOjAwWiIsImlzX293bmVyIjp0cnVlLCJwbGFuIjoicHJlbWl1bSIsImlzX3RyaWFsIjpmYWxzZSwiZmlyc3ROYW1lIjoiQ29ubmVjdFBPUyIsImxhc3ROYW1lIjoiRGV2IiwiZ3RtX2NvZGUiOiIiLCJyZWdpb25fYXBpIjoiIiwiYXNzaWduZWRfdXJscyI6bnVsbCwiZGl2aXNpb25fY29kZSI6IiIsImV4cCI6MTc2OTU4ODY3OSwiaWF0IjoxNzY4OTgzODc5LCJpc3MiOiJDb2NrUm9hY2gifQ.YgbEfKgD7RTgU-N034-R8q-PgagfwfOKcdU1FNAt5n0a0-9jXM4eC7NGboSkbhC3' \
---header 'Cache-Control: no-cache' \
---header 'Connection: keep-alive' \
+curl --location 'https://api-order.dev.connectpos.com/v0/stores/10030/orders?filterFields=last_name%2Cemail%2Cfirst_name%2Ctelephone%2Ccustomer_id%2Corder_id%2Cprice%2Corder_number%2Cnumber&createdAtMin=2025-01-20T17%3A00%3A00.000Z&createdAtMax=2026-01-21T08%3A40%3A00.000Z&outletId=9346&showAllOrder=false&page=1&limit=20&search=' \
 --header 'Content-Type: application/json; charset=utf-8' \
---header 'Origin: https://thor.dev.connectpos.com' \
---header 'Pragma: no-cache' \
---header 'Referer: https://thor.dev.connectpos.com/' \
---header 'Sec-Fetch-Dest: empty' \
---header 'Sec-Fetch-Mode: cors' \
---header 'Sec-Fetch-Site: same-site' \
---header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36' \
---header 'sec-ch-ua: "Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"' \
---header 'sec-ch-ua-mobile: ?0' \
---header 'sec-ch-ua-platform: "macOS"' \
---header 'x-pos-outlet-id: 9346' \
---header 'x-pos-outlet-name: Shopify%20Outlet%20DEV' \
---header 'x-pos-register-id: 12816' \
---header 'x-pos-register-name: Left%20Register' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZzZHFNaU5ScW1xN1pxQ2FMIiwidXNlcl9pZCI6IjZzZHFNaU5ScW1xN1pxQ2FMIiwibGljZW5zZV9pZCI6IndMRXJwaFllRTY1TUd6UGdyIiwic2hvcF9yb2xlIjoiIiwicm9sZXMiOlsidXNlciJdLCJub3RfYWxsb3dfcGVybWlzc2lvbnMiOm51bGwsInByb2ZpbGUiOnsiZGl2aXNpb25Db2RlIjoiIiwidXNlckNvZGUiOiIifSwidXNlcm5hbWUiOiJjb25uZWN0cG9zZGV2IiwiZW1haWwiOiJjb25uZWN0cG9zLnRlY2grY3Bvc0BzbWFydG9zYy5jb20iLCJwaG9uZSI6IiIsImNvdW50cnkiOiIiLCJtYXhfcmVnaXN0ZXIiOjU1LCJpc19wbGF0Zm9ybV91c2VyIjpmYWxzZSwiZXhwaXJ5X2RhdGUiOiIyMDI2LTEyLTMwVDE3OjAwOjAwWiIsImlzX293bmVyIjp0cnVlLCJwbGFuIjoicHJlbWl1bSIsImlzX3RyaWFsIjpmYWxzZSwiZmlyc3ROYW1lIjoiQ29ubmVjdFBPUyIsImxhc3ROYW1lIjoiRGV2IiwiZ3RtX2NvZGUiOiIiLCJyZWdpb25fYXBpIjoiIiwiYXNzaWduZWRfdXJscyI6bnVsbCwiZGl2aXNpb25fY29kZSI6IiIsImV4cCI6MTc2OTU4ODY3OSwiaWF0IjoxNzY4OTgzODc5LCJpc3MiOiJDb2NrUm9hY2gifQ.YgbEfKgD7RTgU-N034-R8q-PgagfwfOKcdU1FNAt5n0a0-9jXM4eC7NGboSkbhC3' \
 --header 'x-pos-store-id: 10030' \
 --header 'x-pos-store-name: connectpos-dev-store.myshopify.com' \
---header 'x-pos-version: 25.12.31'
+--header 'x-pos-outlet-id: 9346' \
+--header 'x-pos-outlet-name: Shopify Outlet DEV' \
+--header 'x-pos-register-id: 12816' \
+--header 'x-pos-register-name: Left%20Register' \
+--header 'x-pos-v2: AI' \
+--header 'x-pos-version: 25.04.26'
