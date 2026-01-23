@@ -1,0 +1,95 @@
+➜  shopify-demo git:(main) ✗ cd /Users/user/Desktop/ConnectPOS/connectors/shopify-demo && export $(cat .env | grep -v '^#' | xargs) && go run cmd/permission/main.go
+{
+  "permissions": [
+    {
+      "description": "Modify orders, transactions, and fulfillments",
+      "handle": "write_orders"
+    },
+    {
+      "description": "Read orders, transactions, and fulfillments",
+      "handle": "read_orders"
+    },
+    {
+      "description": "Modify draft orders",
+      "handle": "write_draft_orders"
+    },
+    {
+      "description": "Read draft orders",
+      "handle": "read_draft_orders"
+    },
+    {
+      "description": "Modify products, variants, and collections",
+      "handle": "write_products"
+    },
+    {
+      "description": "Read products, variants, and collections",
+      "handle": "read_products"
+    },
+    {
+      "description": "Read inventory",
+      "handle": "read_inventory"
+    },
+    {
+      "description": "Read inventory shipments",
+      "handle": "read_inventory_shipments"
+    },
+    {
+      "description": "Read received items for inventory shipments",
+      "handle": "read_inventory_shipments_received_items"
+    },
+    {
+      "description": "Read inventory transfers",
+      "handle": "read_inventory_transfers"
+    },
+    {
+      "description": "Read price rules",
+      "handle": "read_price_rules"
+    },
+    {
+      "description": "Read fulfillment for merchant-managed locations",
+      "handle": "read_merchant_managed_fulfillment_orders"
+    },
+    {
+      "description": "Action fulfillment for merchant-managed locations",
+      "handle": "write_merchant_managed_fulfillment_orders"
+    },
+    {
+      "description": "Read locations",
+      "handle": "read_locations"
+    },
+    {
+      "description": "Read shop locales",
+      "handle": "read_locales"
+    },
+    {
+      "description": "Modify shop locales",
+      "handle": "write_locales"
+    },
+    {
+      "description": "Modify locations",
+      "handle": "write_locations"
+    },
+    {
+      "description": "Read order edits",
+      "handle": "read_order_edits"
+    },
+    {
+      "description": "Modify orders",
+      "handle": "write_order_edits"
+    },
+    {
+      "description": "Read customer details and customer groups",
+      "handle": "read_customers"
+    },
+    {
+      "description": "Modify customer details and customer groups",
+      "handle": "write_customers"
+    },
+    {
+      "description": "Read all orders",
+      "handle": "read_all_orders"
+    }
+  ],
+  "total_permissions": 22
+}
+➜  shopify-demo git:(main) ✗ 
