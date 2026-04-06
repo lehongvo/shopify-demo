@@ -1,0 +1,45 @@
+{
+  "total_missing": 10,
+  "missing_permissions": [
+    {
+      "description": "Read inventory shipments",
+      "handle": "read_inventory_shipments"
+    },
+    {
+      "description": "Read received items for inventory shipments",
+      "handle": "read_inventory_shipments_received_items"
+    },
+    {
+      "description": "Read inventory transfers",
+      "handle": "read_inventory_transfers"
+    },
+    {
+      "description": "Read fulfillment for merchant-managed locations",
+      "handle": "read_merchant_managed_fulfillment_orders"
+    },
+    {
+      "description": "Action fulfillment for merchant-managed locations",
+      "handle": "write_merchant_managed_fulfillment_orders"
+    },
+    {
+      "description": "Read shop locales",
+      "handle": "read_locales"
+    },
+    {
+      "description": "Modify shop locales",
+      "handle": "write_locales"
+    },
+    {
+      "description": "Modify locations",
+      "handle": "write_locations"
+    },
+    {
+      "description": "Read order edits",
+      "handle": "read_order_edits"
+    },
+    {
+      "description": "Modify orders",
+      "handle": "write_order_edits"
+    }
+  ]
+}

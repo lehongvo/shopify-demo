@@ -1,0 +1,101 @@
+{
+  "permissions": [
+    {
+      "description": "Modify products, variants, and collections",
+      "handle": "write_products"
+    },
+    {
+      "description": "Modify orders, transactions, and fulfillments",
+      "handle": "write_orders"
+    },
+    {
+      "description": "Modify customer details and customer groups",
+      "handle": "write_customers"
+    },
+    {
+      "description": "Modify draft orders",
+      "handle": "write_draft_orders"
+    },
+    {
+      "description": "Modify inventory",
+      "handle": "write_inventory"
+    },
+    {
+      "description": "Read locations",
+      "handle": "read_locations"
+    },
+    {
+      "description": "Modify assigned fulfillment",
+      "handle": "write_assigned_fulfillment_orders"
+    },
+    {
+      "description": "Modify fulfillment services",
+      "handle": "write_fulfillments"
+    },
+    {
+      "description": "Read price rules",
+      "handle": "read_price_rules"
+    },
+    {
+      "description": "Read all orders",
+      "handle": "read_all_orders"
+    },
+    {
+      "description": "Modify gift cards",
+      "handle": "write_gift_cards"
+    },
+    {
+      "description": "Modify checkouts",
+      "handle": "unauthenticated_write_checkouts"
+    },
+    {
+      "description": "Modify customer details and customer groups",
+      "handle": "unauthenticated_write_customers"
+    },
+    {
+      "description": "Read access for Shopify Markets API",
+      "handle": "read_markets"
+    },
+    {
+      "description": "Read products, variants, and collections",
+      "handle": "read_products"
+    },
+    {
+      "description": "Read orders, transactions, and fulfillments",
+      "handle": "read_orders"
+    },
+    {
+      "description": "Read customer details and customer groups",
+      "handle": "read_customers"
+    },
+    {
+      "description": "Read draft orders",
+      "handle": "read_draft_orders"
+    },
+    {
+      "description": "Read inventory",
+      "handle": "read_inventory"
+    },
+    {
+      "description": "Read assigned fulfillment",
+      "handle": "read_assigned_fulfillment_orders"
+    },
+    {
+      "description": "Read fulfillment services",
+      "handle": "read_fulfillments"
+    },
+    {
+      "description": "Read gift cards",
+      "handle": "read_gift_cards"
+    },
+    {
+      "description": "Read checkouts",
+      "handle": "unauthenticated_read_checkouts"
+    },
+    {
+      "description": "Read customer details and customer groups",
+      "handle": "unauthenticated_read_customers"
+    }
+  ],
+  "total_permissions": 24
+}
