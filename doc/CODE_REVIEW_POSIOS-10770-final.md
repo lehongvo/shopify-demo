@@ -3,19 +3,19 @@
 **Date:** 2026-04-06  
 **Branch:** `POSIOS-10770` vs `main`  
 **Repo:** `elastic-search-service` (98 files changed, 5411 insertions, 4522 deletions)  
-**Reviewers:** v1 (line-by-line verification) + v2 (skill.md Go Expert checklist)  
+**Reviewers:** v1 (line-by-line) + v2 (skill.md checklist) + v3 (silent-failure-hunter + type-design-analyzer + feature-dev:code-reviewer)  
 **Kết luận: BLOCKED — Cần fix trước khi merge.**
 
 ---
 
-## So sánh v1 vs v2
+## So sánh v1 / v2 / v3
 
-| | v1 | v2 | Final |
-|-|----|----|----|
-| 🔴 MUST FIX | 14 | 7 | **16** |
-| 🟡 SHOULD FIX | 10 | 7 | **14** |
-| 🔵 SUGGEST | 6 | 4 | **7** |
-| **Tổng** | **30** | **18** | **37** |
+| | v1 | v2 | v3 | **Final** |
+|-|----|----|----|-------|
+| 🔴 MUST FIX | 14 | 7 | 13 | **29** |
+| 🟡 SHOULD FIX | 10 | 7 | 6 | **20** |
+| 🔵 SUGGEST | 6 | 4 | 5 | **12** |
+| **Tổng** | **30** | **18** | **24** | **61** |
 
 **Issues chỉ có trong v2 (missed by v1):**
 
@@ -28,6 +28,35 @@
 | [NEW-D] | `worker/sync.go:92,233` | SyncProduct + SyncInventory xóa cùng 1 Redis key | 🟡 NEW |
 | [NEW-E] | `worker/sync.go:410-413` | `fetchInventoryInNetSuite` return `nil` khi location empty | 🟡 NEW |
 | [NEW-F] | `services/job/service.go:43,145,230` | Value receiver `(s Service)` không nhất quán | 🟡 NEW |
+
+**Issues chỉ có trong v3 (missed by v1+v2):**
+
+| # | File | Vấn đề | Severity |
+|---|------|---------|----------|
+| [v3-1] | `cmd/grpc.go:167` | `panic` trong goroutine + không gọi `GracefulStop` | 🔴 NEW |
+| [v3-2] | `cmd/grpc.go:115-127` | `mysqlReadDsn`/`mysqlWriteDsn`/`kafkaBrokers` flags không register → gRPC không start | 🔴 NEW |
+| [v3-3] | `cmd/cron.go:78,137` | Unbuffered signal channel + `cronJob.Stop()` không gọi | 🔴 NEW |
+| [v3-4] | `migration/migration.go:8` | Không có version tracking — mọi migration re-run mỗi lần | 🔴 NEW |
+| [v3-5] | `worker/sync.go:162` | `retries` chỉ reset cho Shopify — non-Shopify exhausts cross-page | 🔴 NEW |
+| [v3-6] | `processor.go:120` | Điều kiện inverted logs EVERY inventory item | 🔴 NEW |
+| [v3-7] | `product/service.go:47` | `Get()` trả `empty+nil` khi ES fail — false success | 🔴 NEW |
+| [v3-8] | `product/service.go:153` | `Delete` loop: partial failures silently succeed | 🔴 NEW |
+| [v3-9] | `product/service.go:175` | gRPC Dial failure trong SalesChannel mapping trả false success | 🔴 NEW |
+| [v3-10] | `processor.go:78,161` | Redis checkpoint errors discarded → silent full re-sync | 🔴 NEW |
+| [v3-11] | `processor.go:57` | `Fetch()` không có `ctx` parameter — uninterruptible | 🔴 NEW |
+| [v3-12] | `cmd/rest.go:78` | `ListenAndServe` error via `fmt.Println` → zombie process | 🔴 NEW |
+| [v3-13] | `cmd/rest.go:107,122` | `io.ReadAll` errors discarded → request body corruption | 🔴 NEW |
+| [v3-14] | `inventory/builder.go:29` | `buildListInventoryItemFilter` mutates caller's request | 🟡 NEW |
+| [v3-15] | `cmd/grpc.go:135` | `Hornet` flag registered nhưng không đọc vào `platform` struct | 🟡 NEW |
+| [v3-16] | `model/store.go:1` | 200+ production store IDs hardcoded trong source | 🟡 NEW |
+| [v3-17] | `repositories/respositories.go:12` | `UpdateStatus` nhận `string` thay vì `model.JobStatus` | 🟡 NEW |
+| [v3-18] | `dto/sync_job.go:4` | `Status string`, `Page/Limit int32` allow negative | 🟡 NEW |
+| [v3-19] | `product/service.go:172` | Two `grpc.Dial + defer conn.Close()` same scope — fragile | 🟡 NEW |
+| [v3-20] | `services/job/service.go:31` | `NewService` không có nil guards | 🔵 NEW |
+| [v3-21] | `model/sync_job.go:55` | `Type:""` possible tại construction, không validate | 🔵 NEW |
+| [v3-22] | `model/sync_job.go:98` | Redis snapshot emit cả `metadata` và `metadata_json` | 🔵 NEW |
+| [v3-23] | `config/redis.go` | Không có constructor, fields public | 🔵 NEW |
+| [v3-24] | `model/sync_job.go:43` | `CanceledAt` field dead — `CancelJob` chưa implement | 🔵 NEW |
 
 ---
 
@@ -707,29 +736,468 @@ Custom formatter/hooks/level truyền vào bị silently ignored.
 
 ---
 
-## Prioritized Fix Order
+## 🔴 MUST FIX — v3 additions (13 issues)
 
-| Priority | Issues | Lý do |
-|----------|--------|-------|
-| **P1 — Crash/Security** | [1] panic, [3] credentials | Server sập + credentials bị leak |
-| **P2 — Feature broken** | [5] migrate.go, [6] Total=1000, [7] DB dead, [8] stubs | Core feature không hoạt động |
-| **P3 — Race conditions** | [9] TOCTOU, [10] Kafka/Redis ordering | Data integrity |
-| **P4 — Shutdown** | [12] ctx.Err(), [13] SIGTERM | Kubernetes graceful shutdown |
-| **P5 — Silent failures** | [NEW-B] Bulk error swallowed, [NEW-E] empty location | Data loss không được detect |
-| **P6 — Performance** | [NEW-A] per-request ES conn | Memory/connection leak |
+### [v3-1] `cmd/grpc.go` — `panic` trong goroutine + không gọi `GracefulStop` ⭐ NEW
+**File:** `cmd/grpc.go:167-179`
+
+```go
+go func() {
+    lis, err := net.Listen("tcp", address)
+    if err != nil {
+        panic(err)  // goroutine panic → crash toàn process, không thể recover
+    }
+    // ...
+    if err = grpcServer.Serve(lis); err != nil {
+        panic(err)
+    }
+}()
+<-c
+// grpcServer.GracefulStop() KHÔNG được gọi → in-flight RPCs bị drop
+```
+
+**Fix:**
+```go
+go func() {
+    lis, err := net.Listen("tcp", address)
+    if err != nil {
+        cpos_log.Logger.WithError(err).Fatal("failed to listen on gRPC port")
+    }
+    if err := grpcServer.Serve(lis); err != nil {
+        cpos_log.Logger.WithError(err).Error("grpc server error")
+    }
+}()
+<-c
+grpcServer.GracefulStop()
+```
 
 ---
 
-## Deploy Order (sau khi fix tất cả P1-P5)
+### [v3-2] `cmd/grpc.go` — `mysqlReadDsn` / `mysqlWriteDsn` / `kafkaBrokers` không được register vào CLI flags ⭐ NEW
+**File:** `cmd/grpc.go:115-127`
+
+```go
+// grpcCmd.init() THIẾU binding → viper.GetString() luôn trả ""
+ormReader, err := config.ConnectDatabase(viper.GetString("mysqlReadDsn"))  // "" → fail
+ormWriter, err := config.ConnectDatabase(viper.GetString("mysqlWriteDsn")) // "" → fail
+kafkaBrokers := strings.Split(viper.GetString("kafkaBrokers"), ",")        // [""]
+```
+
+Kết quả: gRPC server **không bao giờ start** khi deploy bằng CLI flags (DSN empty → `ConnectDatabase` error → early return).
+
+**Khác với [23] (cmd/sync.go):** Đây là `grpcCmd.init()` độc lập, chưa được flag ở bất kỳ đâu.
+
+**Fix:** Thêm vào `grpcCmd.init()`:
+```go
+grpcCmd.Flags().StringP("mysqlReadDsn",  "", "", "MySQL reader DSN")
+grpcCmd.Flags().StringP("mysqlWriteDsn", "", "", "MySQL writer DSN")
+grpcCmd.Flags().StringP("kafkaBrokers",  "", "127.0.0.1:9092", "Kafka brokers")
+_ = viper.BindPFlag("mysqlReadDsn",  grpcCmd.Flags().Lookup("mysqlReadDsn"))
+_ = viper.BindPFlag("mysqlWriteDsn", grpcCmd.Flags().Lookup("mysqlWriteDsn"))
+_ = viper.BindPFlag("kafkaBrokers",  grpcCmd.Flags().Lookup("kafkaBrokers"))
+```
+
+---
+
+### [v3-3] `cmd/cron.go` — unbuffered signal channel + `cronJob.Stop()` không được gọi ⭐ NEW
+**File:** `cmd/cron.go:78, 137-138`
+
+```go
+c := make(chan os.Signal)  // ← unbuffered! grpc.go/rest.go/sync.go đều dùng buffer=1
+// ...
+<-c
+ctx, cancel := context.WithCancel(ctx)
+defer cancel()
+// cronJob.Stop() KHÔNG BAO GIỜ được gọi → tất cả scheduled goroutines chạy mãi
+```
+
+Go docs: `signal.Notify` sẽ drop signal nếu channel không có buffer. Cron jobs không được Stop → goroutine/resource leak sau mỗi deployment.
+
+**Fix:**
+```go
+c := make(chan os.Signal, 1)
+// ...
+<-c
+cronJob.Stop()
+cancel()
+```
+
+---
+
+### [v3-4] `internal/migration/migration.go` — không có version tracking, mọi migration re-run mỗi lần ⭐ NEW
+**File:** `internal/migration/migration.go:8-13`
+
+```go
+func Migrate(db *gorm.DB) error {
+    if err := versions.Version20260121140000(db); err != nil {
+        return err
+    }
+    return nil
+    // Không có bảng schema_migrations, không track gì
+}
+```
+
+Mỗi lần `./bin/es-service migrate` → tất cả versions re-execute. GORM AutoMigrate additive-safe hiện tại, nhưng bất kỳ future migration destructive nào sẽ chạy lại mỗi lần → data corruption.
+
+**Fix:** Dùng `pressly/goose` hoặc tương đương để track applied versions.
+
+---
+
+### [v3-5] `internal/worker/sync.go` — `retries` chỉ reset cho Shopify, tích lũy cross-page với non-Shopify stores ⭐ NEW
+**File:** `internal/worker/sync.go:162-164`
+
+```go
+// SyncProduct — conditional reset
+if storeconnect.IsShopify(store.GetType()) {
+    retries = 0  // non-Shopify: retries KHÔNG reset sau mỗi page thành công
+}
+
+// SyncInventory — unconditional (đúng)
+retries = 0
+```
+
+BigCommerce/Magento store: page 3 gặp 4 transient errors → chỉ còn 6 retries cho toàn bộ sync → loop exit sớm, data bị cắt giữa chừng mà không có error rõ ràng.
+
+**Fix:**
+```go
+retries = 0  // unconditional, nhất quán với SyncInventory
+```
+
+---
+
+### [v3-6] `internal/services/inventory/processor.go` — inverted condition logs EVERY item ⭐ NEW
+**File:** `internal/services/inventory/processor.go:120`
+
+```go
+// HIỆN TẠI — true với hầu hết items (non-nil OR empty = almost always true)
+if item.BinNumbers != nil || len(item.BinNumbers) == 0 {
+    logEntry.Info("fetch bin numbers success")
+}
+// Fix: log chỉ khi THỰC SỰ có bin numbers
+if len(item.BinNumbers) > 0 {
+    logEntry.Info("fetch bin numbers success")
+}
+```
+
+1000 items per page × N pages → N×1000 log lines per sync run → severe performance degradation từ log I/O, log aggregation bị flood.
+
+---
+
+### [v3-7] `product/service.go` — `Get()` trả `empty Product + nil` khi ES fail ⭐ NEW
+**File:** `internal/services/product/service.go:47-58`
+
+```go
+result, err := esConnection.Product.Get(r.GetId())
+if nil != err {
+    cpos_log.Logger.WithFields(...).WithError(err).Error("search product failed")
+    return &prodpb.Product{}, nil  // ES down → caller nhận HTTP 200 với empty product
+}
+```
+
+POS client không thể phân biệt "product not found" với "ES infrastructure down". Tương tự pattern ở `GetList` (`internal/services/product/service.go:88`).
+
+**Fix:** Return gRPC error code thay vì false success:
+```go
+return nil, status.Errorf(codes.Internal, "failed to get product %s: %v", r.GetId(), err)
+```
+
+---
+
+### [v3-8] `product/service.go` — `Delete` loop: partial failures silently succeed ⭐ NEW
+**File:** `internal/services/product/service.go:153-165`
+
+```go
+for _, ID := range IDs {
+    err := esConnection.Product.Delete(ID)
+    if nil != err {
+        logEntry.WithError(err).Error("delete document failed")
+        // ← không accumulate, không return error
+    }
+}
+return &ppb.SyncProductResponse{}, nil  // luôn success dù tất cả Delete đều fail
+```
+
+Products đã xóa trên Shopify sẽ tiếp tục tồn tại trong ES index vô thời hạn.
+
+**Fix:** Accumulate và return failures:
+```go
+var failedIDs []string
+for _, ID := range IDs {
+    if err := esConnection.Product.Delete(ID); err != nil {
+        logEntry.WithField("product_id", ID).WithError(err).Error("delete document failed")
+        failedIDs = append(failedIDs, ID)
+        continue
+    }
+    deleteProductsWorker(esConnection, ID)
+}
+if len(failedIDs) > 0 {
+    return nil, status.Errorf(codes.Internal, "failed to delete products: %v", failedIDs)
+}
+```
+
+---
+
+### [v3-9] `product/service.go` — gRPC Dial failure trong SalesChannel mapping trả false success ⭐ NEW
+**File:** `internal/services/product/service.go:175-183`
+
+```go
+conn, err := grpc.Dial(...)
+if nil != err {
+    logEntry.WithError(err).Error("init connection failed")
+    return &ppb.SyncProductResponse{}, nil  // platform unreachable → HTTP 200
+}
+```
+
+Platform service down → products sync vào ES **không có** channel mapping data. POS serves incorrectly mapped products silently.
+
+**Fix:**
+```go
+if err != nil {
+    return nil, status.Errorf(codes.Unavailable, "platform service unavailable: %v", err)
+}
+```
+
+---
+
+### [v3-10] `inventory/processor.go` — Redis checkpoint errors discarded → silent full re-sync loop ⭐ NEW
+**File:** `internal/services/inventory/processor.go:78, 161, 236`
+
+```go
+// line 78: error bị discard hoàn toàn
+updatedAtMin, _ := p.redisClient.Reader.Get(context.Background(), key).Result()
+
+// line 161: return value của Set không được check
+p.redisClient.Writer.Set(context.Background(), key, timeToFetch, redis.KeepTTL)
+```
+
+Redis down → `updatedAtMin = ""` → incremental sync trở thành full re-index. Checkpoint không được lưu → mỗi run sau đó cũng full re-index. Không có log nào.
+
+**Fix:**
+```go
+updatedAtMin, err := p.redisClient.Reader.Get(ctx, key).Result()
+if err != nil && !errors.Is(err, redis.Nil) {
+    logEntry.WithError(err).Error("failed to read last fetch timestamp — performing full sync")
+}
+
+if err := p.redisClient.Writer.Set(ctx, key, timeToFetch, redis.KeepTTL).Err(); err != nil {
+    logEntry.WithError(err).Error("failed to persist sync checkpoint — next run will full re-index")
+}
+```
+
+---
+
+### [v3-11] `inventory/processor.go` — `Fetch()` không có `ctx` parameter — uninterruptible ⭐ NEW
+**File:** `internal/services/inventory/processor.go:57`
+
+```go
+func (p *Processor) Fetch() {  // không có ctx
+    err := p.fetchInventoryInNetSuite(context.Background())  // không thể cancel
+    result, err := platformService.GetList(context.Background(), filter)  // không thể cancel
+```
+
+Large store inventory fetch có thể chạy hàng giờ. SIGTERM không thể interrupt. Graceful shutdown chờ vô tận.
+
+**Fix:**
+```go
+func (p *Processor) Fetch(ctx context.Context) {
+    err := p.fetchInventoryInNetSuite(ctx)
+    result, err := platformService.GetList(ctx, filter)
+```
+
+---
+
+### [v3-12] `cmd/rest.go` — HTTP `ListenAndServe` error bị swallow → zombie process ⭐ NEW
+**File:** `cmd/rest.go:78-84`
+
+```go
+go func() {
+    fmt.Println("server started")  // log trước khi thực sự serve
+    err := srv.ListenAndServe()
+    if nil != err {
+        fmt.Println(err)  // stdout only — không vào log aggregation
+        // process tiếp tục! không exit
+    }
+}()
+```
+
+Port đã bị bind → ListenAndServe error → `fmt.Println` → process alive nhưng không serve → health check pass → load balancer routes traffic vào zombie.
+
+**Fix:**
+```go
+go func() {
+    if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+        cpos_log.Logger.WithField("addr", addr).WithError(err).Fatal("HTTP server failed to start")
+    }
+}()
+cpos_log.Logger.WithField("addr", addr).Info("REST server started")
+```
+
+---
+
+### [v3-13] `cmd/rest.go:107,122` — `io.ReadAll` errors discarded → request body corruption ⭐ NEW
+**File:** `cmd/rest.go:107-108, 122`
+
+```go
+buf, _ := ioutil.ReadAll(r.Body)   // error discarded → buf partial/empty
+respBody, _ := ioutil.ReadAll(...) // error discarded → empty response logged
+```
+
+**Khác với [26] (chỉ flag deprecated):** Đây là bug nghiêm trọng hơn — error bị discard (`_`). Client disconnect mid-request → `buf` chứa truncated body → JSON unmarshal nhận payload sai → request được xử lý với data corrupt.
+
+**Fix:**
+```go
+buf, err := io.ReadAll(r.Body)
+if err != nil {
+    cpos_log.Logger.WithError(err).Error("failed to read request body")
+    http.Error(w, "failed to read request body", http.StatusBadRequest)
+    return
+}
+```
+
+---
+
+## 🟡 SHOULD FIX — v3 additions (6 issues)
+
+### [v3-14] `inventory/builder.go` — `buildListInventoryItemFilter` mutates caller's `*Request` ⭐ NEW
+**File:** `internal/services/inventory/builder.go:29`
+
+```go
+func buildListInventoryItemFilter(r *ppb.ListInventoryItemRequest) interface{} {
+    r.Limit = constant.LIMIT1000  // ← silently mutates caller's original request!
+```
+
+Sau khi gọi builder, `r.Limit` của gRPC handler bị override thành 1000. Response `MaxPage` và `Limit` trả về client tính theo limit sai.
+
+**Fix:** Dùng local variable, không mutate input pointer.
+
+---
+
+### [v3-15] `cmd/grpc.go` — `Hornet` flag registered nhưng không được đọc vào `platform` struct ⭐ NEW
+**File:** `cmd/grpc.go:59, 79, 135-143`
+
+```go
+// init() — flag registered
+grpcCmd.Flags().StringP("hornet", ...)
+
+// runGrpcCmd — BỊ BỎ SÓT
+platform := &storeconnect.Platform{
+    Hermes:  viper.GetString("hermes"),
+    // ...
+    // Hornet: viper.GetString("hornet")  ← missing!
+}
+```
+
+Stores routed qua Hornet sẽ dùng zero-value address → connection refused. Tương tự trong `cmd/sync.go` và `cmd/cron.go`.
+
+---
+
+### [v3-16] `internal/model/store.go` — 200+ production store IDs hardcoded trong source code ⭐ NEW
+**File:** `internal/model/store.go:1-282`
+
+Toàn bộ scheduling config của 200+ production stores (ID, cron schedule, store name) được compile vào binary. Thêm/xóa store cần code change + rebuild + redeploy. Store IDs là PII-adjacent.
+
+---
+
+### [v3-17] `repositories/respositories.go` — `UpdateStatus` nhận `string` thay vì `model.JobStatus` ⭐ NEW
+**File:** `internal/repositories/respositories.go:12`
+
+```go
+// Type system bypass tại mutation boundary quan trọng nhất
+UpdateStatus(ctx context.Context, jobID string, status string) error
+
+// Fix: enforce domain type
+UpdateStatus(ctx context.Context, jobID string, status model.JobStatus) error
+```
+
+---
+
+### [v3-18] `dto/sync_job.go` — `Status string`, `Page/Limit int32` allow negative ⭐ NEW
+**File:** `internal/dto/sync_job.go:4-5`
+
+```go
+type GetListJobsRequest struct {
+    Status  string  // nên là model.JobStatus
+    Page    int32   // nên là uint32
+    Limit   int32   // nên là uint32
+}
+```
+
+---
+
+### [v3-19] `product/service.go` — two `grpc.Dial` + `defer conn.Close()` same function scope ⭐ NEW
+**File:** `internal/services/product/service.go:172-196`
+
+Hai connections trong cùng 1 function với `defer conn.Close()` theo LIFO. Error-prone — nên dùng explicit `conn.Close()` thay vì `defer` trong conditional blocks.
+
+---
+
+## 🔵 SUGGEST — v3 additions (5 issues)
+
+### [v3-20] `services/job/service.go:NewService` — không có nil guards ⭐ NEW
+
+```go
+// Fix: fail fast tại startup thay vì panic muộn tại runtime
+func NewService(...) (*Service, error) {
+    if syncJobRepo == nil { return nil, errors.New("syncJobRepo must not be nil") }
+    if redisConfig == nil { return nil, errors.New("redisConfig must not be nil") }
+    if writer == nil { return nil, errors.New("kafka writer must not be nil") }
+    return &Service{...}, nil
+}
+```
+
+---
+
+### [v3-21] `model/sync_job.go` — `Type:""` possible tại construction, không validate ⭐ NEW
+
+`syncJob.Type = ""` trước switch trong `CreateJob`. Nếu switch miss case → DB `not null` constraint fail tại GORM layer (hard error) thay vì clean application error. Thêm validation trước `Create`.
+
+---
+
+### [v3-22] `model/sync_job.go:98` — Redis snapshot emit cả `metadata` và `metadata_json` ⭐ NEW
+
+`json.Marshal(syncJob)` emit 2 fields. Redis round-trip qua `json.Unmarshal` không gọi `AfterFind` → `Metadata` map luôn nil sau khi đọc từ Redis.
+
+---
+
+### [v3-23] `config/redis.go` — không có constructor, `Writer`/`Reader` fields public ⭐ NEW
+
+Nil invariant không được enforce tại construction. Fix: thêm `NewRedisClient(writerAddr, readerAddr string) (*RedisClient, error)`.
+
+---
+
+### [v3-24] `model/sync_job.go:43` — `CanceledAt` là dead schema field ⭐ NEW
+
+`CanceledAt *time.Time` trong schema nhưng `CancelJob` là `panic("implement me")`. Schema và code không đồng bộ — confuse DBA khi xem bảng.
+
+---
+
+## Prioritized Fix Order (Updated)
+
+| Priority | Issues | Lý do |
+|----------|--------|-------|
+| **P0 — Immediate** | [3] credentials, rotate now | Production passwords in git history |
+| **P1 — Crash** | [1] CancelJob panic, [v3-1] grpc panic, [v3-12] zombie REST | Server crash / process death |
+| **P2 — Startup broken** | [5] migrate.go init(), [v3-2] grpcCmd missing flags | Services không start được |
+| **P3 — Feature broken** | [6] Total=1000, [7] DB dead, [8] stubs | Core Sync Job API vô nghĩa |
+| **P4 — Race conditions** | [9] TOCTOU, [10] Kafka/Redis ordering | Data integrity |
+| **P5 — Silent data loss** | [NEW-B] Bulk swallowed, [v3-7] Get false success, [v3-8] Delete silently success | Data loss không detect được |
+| **P6 — Shutdown** | [12] ctx.Err(), [13] SIGTERM, [v3-3] cron.Stop(), [v3-11] Fetch ctx | Kubernetes graceful shutdown |
+| **P7 — Performance** | [NEW-A] per-request ES conn, [v3-6] inverted condition flood logs | Memory leak + log storm |
+| **P8 — Data quality** | [v3-5] retries non-Shopify, [v3-10] Redis checkpoint discarded | Partial/stale data silently |
+
+---
+
+## Deploy Order (sau khi fix tất cả P0-P6)
 
 ```
 1. Rotate credentials bị leak (immediate, trước khi merge)
 2. Deploy pbtypes (MR#566 — additive only, không breaking)
 3. Run DB migration: ./bin/es-service migrate --mysqlWriteDsn=...
-4. Deploy es-service (MR#30 — gRPC + REST + Worker)
-5. Apply k8s-staging (MR#31 — config & env vars)
+   (sau khi fix [5] migrate.go init() và [v3-4] migration version tracking)
+4. Deploy es-service (MR#30 — gRPC + REST + Worker + Cron)
+5. Apply k8s-staging (MR#31 — config & env vars, bao gồm MySQL/Kafka/Hornet DSN)
 ```
 
 ---
 
-*Final report — merged from v1 (30 issues, line-by-line verification) + v2 (18 issues, skill.md Go Expert checklist). 37 unique issues total.*
+*Final report — merged from v1 (30 issues) + v2 (18 issues, skill.md checklist) + v3 (24 issues, silent-failure-hunter + type-design-analyzer + feature-dev:code-reviewer). 61 unique issues total.*
