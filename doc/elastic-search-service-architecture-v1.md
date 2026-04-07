@@ -271,6 +271,59 @@ sequenceDiagram
 | `--source` | `` | Override `ESStoreConfig` cho tất cả store (debug) |
 | `--hermes`, `--ladybug`, ... | 127.0.0.1:909x | Endpoint các backend |
 
+### 3.3b Command line mẫu
+
+**Force sync 1 store (hay dùng nhất khi ops cần sync gấp):**
+```bash
+./elastic-search-service pull \
+  --storeId=5981 \
+  --source=inventory \
+  --redisAddressRead=127.0.0.1:6379 \
+  --redisAddressWrite=127.0.0.1:6379 \
+  --redisPassword=yourpassword \
+  --esAddress=http://127.0.0.1:9200 \
+  --esUsername=elastic \
+  --esPassword=yourpassword \
+  --hermes=127.0.0.1:9092 \
+  --setting=127.0.0.1:9095
+```
+
+**Full resync 1 store (bỏ qua delta, pull lại hết từ đầu):**
+```bash
+./elastic-search-service pull \
+  --storeId=5981 \
+  --all=true \
+  --redisAddressRead=127.0.0.1:6379 \
+  --redisAddressWrite=127.0.0.1:6379 \
+  --esAddress=http://127.0.0.1:9200 \
+  --hermes=127.0.0.1:9092 \
+  --setting=127.0.0.1:9095
+```
+
+**Pull cả partition (production pod):**
+```bash
+./elastic-search-service pull \
+  --partitions=1 \
+  --redisAddressRead=127.0.0.1:6379 \
+  --redisAddressWrite=127.0.0.1:6379 \
+  --esAddress=http://127.0.0.1:9200 \
+  --hermes=127.0.0.1:9092 \
+  --setting=127.0.0.1:9095
+```
+
+**Chạy cron daemon dài hạn (production):**
+```bash
+./elastic-search-service cron \
+  --partitions=1 \
+  --redisAddressRead=127.0.0.1:6379 \
+  --redisAddressWrite=127.0.0.1:6379 \
+  --esAddress=http://127.0.0.1:9200 \
+  --hermes=127.0.0.1:9092 \
+  --setting=127.0.0.1:9095
+```
+
+> **Ghi chú**: `pull` chạy xong thì exit. `cron` chạy mãi đến khi nhận SIGTERM/SIGINT.
+
 ### 3.4 Delta sync — Cái gì nằm ở đâu
 
 ```mermaid
